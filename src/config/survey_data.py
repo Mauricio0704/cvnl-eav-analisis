@@ -1,0 +1,31 @@
+HOUSEHOLD_QUESTIONS = [
+    "respondent_id",
+    "is_initial_respondent",
+    "nombre",
+    "city_id",
+    "cp2",
+    "cp4_1",
+    "cp4_2",
+    "cp6",
+    "cp7",
+    "cp8",
+    "cp9",
+    "cp10a",
+    "cp10b",
+    "cp11",
+    "cp13",
+    "cp14",
+    "cp15_1",
+    "cp15_2",
+    "cp16",
+    "cp17",
+    "cp18",
+    "cp19",
+]
+
+DEMOGRAPHIC_CODES = {
+    "cp2": "sexo",
+    "city_id": "city",
+    "cp4_1": "edad_anos",
+    "cp4_2": "edad_meses",
+}

@@ -1,5 +1,6 @@
 import pandas as pd
 
+from ..config.survey_data import HOUSEHOLD_QUESTIONS
 
 def generate_id(df: pd.DataFrame, id_name: str, id_cols: list[str]) -> pd.DataFrame:
     df = df.copy()
@@ -32,7 +33,7 @@ def household_data_to_long_format(
 
         tmp = df[cols].copy()
         tmp["member_id"] = n
-        tmp["is_respondent"] = True if n == 1 else False
+        tmp["is_initial_respondent"] = True if n == 1 else False
 
         # Renombrar variables cp[q]_[n] -> cp[q] y cp[n]_nombre -> nombre
         tmp = tmp.rename(columns={c: c.rsplit("_", 1)[0] for c in cols_p})
@@ -51,31 +52,6 @@ def household_data_to_long_format(
         household_person, id_name="respondent_id", id_cols=["household_id", "member_id"]
     )
 
-    headers_order = [
-        "respondent_id",
-        "is_respondent",
-        "nombre",
-        "city_id",
-        "cp2",
-        "cp4_1",
-        "cp4_2",
-        "cp6",
-        "cp7",
-        "cp8",
-        "cp9",
-        "cp10a",
-        "cp10b",
-        "cp11",
-        "cp13",
-        "cp14",
-        "cp15_1",
-        "cp15_2",
-        "cp16",
-        "cp17",
-        "cp18",
-        "cp19",
-    ]
-
-    household_with_id = household_with_id[headers_order].copy()
+    household_with_id = household_with_id[HOUSEHOLD_QUESTIONS].copy()
 
     return household_with_id
