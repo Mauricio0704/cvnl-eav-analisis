@@ -1,13 +1,7 @@
 import pandas as pd
 
 from ..config.survey_data import HOUSEHOLD_QUESTIONS
-
-def generate_id(df: pd.DataFrame, id_name: str, id_cols: list[str]) -> pd.DataFrame:
-    df = df.copy()
-
-    df[id_name] = df[id_cols].astype(str).agg("_".join, axis=1)
-
-    return df.drop(columns=id_cols)
+from ..utils.dataframe import generate_id
 
 
 def remove_emtpy_rows(household_data: pd.DataFrame) -> pd.DataFrame:
