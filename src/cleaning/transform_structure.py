@@ -11,7 +11,7 @@ def remove_emtpy_rows(household_data: pd.DataFrame) -> pd.DataFrame:
     return household_data.loc[person_mask].copy()
 
 
-def household_data_to_long_format(
+def household_members_to_long_format(
     household_data: pd.DataFrame, max_members_per_household: int
 ) -> pd.DataFrame:
     df = household_data.copy()
@@ -49,3 +49,33 @@ def household_data_to_long_format(
     household_with_id = household_with_id[HOUSEHOLD_DATA_AND_QUESTIONS].copy()
 
     return household_with_id
+
+
+def household_questions_to_long_format(df: pd.DataFrame) -> pd.DataFrame:
+    new_df = pd.melt(
+        df,
+        id_vars=["respondent_id"],
+        value_vars=[
+            "cp2",
+            "cp4_1",
+            "cp4_2",
+            "cp6",
+            "cp7",
+            "cp8",
+            "cp9",
+            "cp10a",
+            "cp10b",
+            "cp11",
+            "cp13",
+            "cp14",
+            "cp15_1",
+            "cp15_2",
+            "cp16",
+            "cp17",
+            "cp18",
+            "cp19",
+        ],
+        var_name="question_id",
+        value_name="answer_id",
+    )
+    return new_df
