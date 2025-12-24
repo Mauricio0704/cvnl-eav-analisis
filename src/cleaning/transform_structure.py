@@ -1,6 +1,6 @@
 import pandas as pd
 
-from ..config.survey_data import HOUSEHOLD_QUESTIONS
+from ..config.survey_data import HOUSEHOLD_DATA_AND_QUESTIONS
 from ..utils.dataframe import generate_id
 
 
@@ -16,7 +16,7 @@ def household_data_to_long_format(
 ) -> pd.DataFrame:
     df = household_data.copy()
 
-    household_cols = ["household_id", "city_id"]
+    household_cols = ["household_id", "city_id", "factor_cvnl"]
 
     long_parts = []
 
@@ -46,6 +46,6 @@ def household_data_to_long_format(
         household_person, id_name="respondent_id", id_cols=["household_id", "member_id"]
     )
 
-    household_with_id = household_with_id[HOUSEHOLD_QUESTIONS].copy()
+    household_with_id = household_with_id[HOUSEHOLD_DATA_AND_QUESTIONS].copy()
 
     return household_with_id

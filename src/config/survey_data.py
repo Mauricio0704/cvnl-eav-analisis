@@ -1,4 +1,4 @@
-HOUSEHOLD_QUESTIONS = [
+HOUSEHOLD_DATA_AND_QUESTIONS = [
     "respondent_id",
     "is_initial_respondent",
     "nombre",
@@ -21,6 +21,7 @@ HOUSEHOLD_QUESTIONS = [
     "cp17",
     "cp18",
     "cp19",
+    "factor_cvnl",
 ]
 
 DEMOGRAPHIC_CODES = {
@@ -28,6 +29,7 @@ DEMOGRAPHIC_CODES = {
     "city_id": "city",
     "cp4_1": "edad_anos",
     "cp4_2": "edad_meses",
+    "factor_cvnl": "factor_cvnl",
 }
 
 
@@ -75,6 +77,7 @@ HOUSEHOLD_NUMERIC_QUESTIONS = [
     "cp17",
     "cp18",
     "cp19",
+    "factor_cvnl",
 ]
 
 QUESTION_SECTIONS = {
@@ -90,3 +93,6 @@ QUESTION_SECTIONS = {
     "seguridad": {"start": "p111", "end": "p127"},
     "gobierno": {"start": "p128", "end": "p167"},
 }
+
+AGE_BINS = [0, 17, 24, 34, 44, 54, 64, 74, 999]
+AGE_LABELS = ["0-17", "18-24", "25-34", "35-44", "45-54", "55-64", "65-74", "75 o más"]

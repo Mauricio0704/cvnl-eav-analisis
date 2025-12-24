@@ -1,6 +1,7 @@
 import pandas as pd
 
 from ..config.paths import PROCESSED_DATA_DIR
+from ..config.survey_data import AGE_BINS, AGE_LABELS
 
 
 def export_responses_to_csv(
@@ -20,9 +21,14 @@ def export_responses_to_csv(
         .rename(columns={"respondent_id": "id", **demographic_codes})
         .reset_index(drop=True)
     )
-    responses["edad_total_meses"] = responses["edad_anos"] * 12 + responses[
-        "edad_meses"
-    ].fillna(0)
+
+    responses["grupo_edad"] = pd.cut(
+        responses["edad_anos"],
+        bins=AGE_BINS,
+        labels=AGE_LABELS,
+        right=True,
+        include_lowest=True,
+    )
 
     responses.to_csv(PROCESSED_DATA_DIR / "responses.csv", index=False)
 

@@ -20,6 +20,8 @@ def clean_household_responses(df: pd.DataFrame) -> pd.DataFrame:
         df["nombre"] = df["nombre"].astype(str).str.strip().str.title()
 
     df = clean_sex(df, "cp2")
+    df["cp4_1"] = df["cp4_1"].astype("Int16").fillna(0)
+    df["cp4_2"] = df["cp4_2"].astype("Int16").fillna(0)
 
     for col in HOUSEHOLD_NUMERIC_QUESTIONS:
         if col in df.columns:
