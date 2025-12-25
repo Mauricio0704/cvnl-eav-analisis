@@ -79,3 +79,14 @@ def household_questions_to_long_format(df: pd.DataFrame) -> pd.DataFrame:
         value_name="answer_id",
     )
     return new_df
+
+
+def individual_questions_to_long_format(df: pd.DataFrame) -> pd.DataFrame:
+    new_df = pd.melt(
+        df,
+        id_vars=["respondent_id"],
+        value_vars=df.columns.tolist().remove("respondent_id"),
+        var_name="question_id",
+        value_name="answer_id",
+    )
+    return new_df
