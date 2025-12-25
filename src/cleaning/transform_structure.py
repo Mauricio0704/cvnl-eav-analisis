@@ -1,6 +1,6 @@
 import pandas as pd
 
-from ..config.survey_data import HOUSEHOLD_QUESTIONS
+from ..config.survey_data import HOUSEHOLD_DATA_AND_QUESTIONS
 from ..utils.dataframe import generate_id
 
 
@@ -11,12 +11,12 @@ def remove_emtpy_rows(household_data: pd.DataFrame) -> pd.DataFrame:
     return household_data.loc[person_mask].copy()
 
 
-def household_data_to_long_format(
+def household_members_to_long_format(
     household_data: pd.DataFrame, max_members_per_household: int
 ) -> pd.DataFrame:
     df = household_data.copy()
 
-    household_cols = ["household_id", "city_id"]
+    household_cols = ["household_id", "city_id", "factor_cvnl"]
 
     long_parts = []
 
@@ -46,6 +46,47 @@ def household_data_to_long_format(
         household_person, id_name="respondent_id", id_cols=["household_id", "member_id"]
     )
 
-    household_with_id = household_with_id[HOUSEHOLD_QUESTIONS].copy()
+    household_with_id = household_with_id[HOUSEHOLD_DATA_AND_QUESTIONS].copy()
 
     return household_with_id
+
+
+def household_questions_to_long_format(df: pd.DataFrame) -> pd.DataFrame:
+    new_df = pd.melt(
+        df,
+        id_vars=["respondent_id"],
+        value_vars=[
+            "cp2",
+            "cp4_1",
+            "cp4_2",
+            "cp6",
+            "cp7",
+            "cp8",
+            "cp9",
+            "cp10a",
+            "cp10b",
+            "cp11",
+            "cp13",
+            "cp14",
+            "cp15_1",
+            "cp15_2",
+            "cp16",
+            "cp17",
+            "cp18",
+            "cp19",
+        ],
+        var_name="question_id",
+        value_name="answer_id",
+    )
+    return new_df
+
+
+def individual_questions_to_long_format(df: pd.DataFrame) -> pd.DataFrame:
+    new_df = pd.melt(
+        df,
+        id_vars=["respondent_id"],
+        value_vars=df.columns.tolist().remove("respondent_id"),
+        var_name="question_id",
+        value_name="answer_id",
+    )
+    return new_df

@@ -14,8 +14,8 @@ def get_household_data(survey_df: pd.DataFrame) -> pd.DataFrame:
     column_mapping = {"cp4_1": "cp4_1_1"}
     household_data_raw.rename(mapper=column_mapping, axis=1, inplace=True)
 
-    household_data_raw[["household_id", "city_id"]] = df[
-        ["orden_gral_muestra_mv", "mun_mv"]
+    household_data_raw[["household_id", "city_id", "factor_cvnl"]] = df[
+        ["orden_gral_muestra_mv", "mun_mv", "factor_cvnl"]
     ].copy()
 
     return household_data_raw
