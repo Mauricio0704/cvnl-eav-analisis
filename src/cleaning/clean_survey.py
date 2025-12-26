@@ -100,4 +100,12 @@ def clean_options(df: pd.DataFrame) -> pd.DataFrame:
         answer_mask, ["question_id", "option_id", "option_label"]
     ]
 
-    return answers
+    options = answers.copy()
+
+    options = (
+        options
+        .drop_duplicates(subset=["question_id", "option_id"], keep="first")
+        .reset_index(drop=True)
+    )
+
+    return options

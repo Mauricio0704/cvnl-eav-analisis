@@ -14,7 +14,7 @@ def load_survey_year(year: int, base_dir: Path) -> pd.DataFrame:
 
 
 def load_questions_year(year: int, base_dir: Path) -> pd.DataFrame:
-    file_path = base_dir / "raw" / str(year) / "cuestionario-eav2025.xlsx"
+    file_path = base_dir / "raw" / str(year) / "copy_cuestionario-eav2025.xlsx"
 
     if not file_path.exists():
         raise FileNotFoundError(f"Questions file not found for year {year}")
