@@ -6,7 +6,7 @@ def get_household_data(survey_df: pd.DataFrame) -> pd.DataFrame:
     df = survey_df.copy()
     household_data_raw = df.filter(regex=r"^cp\d+").copy()
 
-    only_for_one = ["cp1", "cp3_1", "cp4_1_ed", "cp5_1"]
+    only_for_one = ["cp1", "cp3", "cp4_1_ed", "cp5"]
     household_data_raw.drop(only_for_one, axis=1, inplace=True)
 
     household_data_raw["cp4_2_1"] = np.nan

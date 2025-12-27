@@ -3,7 +3,7 @@ import pandas as pd
 
 
 def load_survey_year(year: int, base_dir: Path) -> pd.DataFrame:
-    file_path = base_dir / "raw" / str(year) / "data_eav2025-raw.xlsx"
+    file_path = base_dir / "raw" / str(year) / "copy_data_eav2025-raw.xlsx"
 
     if not file_path.exists():
         raise FileNotFoundError(f"Survey file not found for year {year}")

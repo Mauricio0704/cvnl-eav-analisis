@@ -63,8 +63,8 @@ def household_questions_to_long_format(df: pd.DataFrame) -> pd.DataFrame:
             "cp7",
             "cp8",
             "cp9",
-            "cp10a",
-            "cp10b",
+            "cp10_a",
+            "cp10_b",
             "cp11",
             "cp13",
             "cp14",
@@ -78,6 +78,7 @@ def household_questions_to_long_format(df: pd.DataFrame) -> pd.DataFrame:
         var_name="question_id",
         value_name="answer_id",
     )
+    new_df["answer_id"] = new_df["answer_id"].astype("Int64")
     return new_df
 
 
@@ -89,4 +90,5 @@ def individual_questions_to_long_format(df: pd.DataFrame) -> pd.DataFrame:
         var_name="question_id",
         value_name="answer_id",
     )
+    new_df["answer_id"] = new_df["answer_id"].astype("Int64")
     return new_df
