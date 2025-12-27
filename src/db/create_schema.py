@@ -25,7 +25,7 @@ def create_schema(conn: sqlite3.Connection):
 
         
         CREATE TABLE IF NOT EXISTS responses (
-            id INTEGER PRIMARY KEY,
+            respondent_id TEXT PRIMARY KEY,
             is_initial_respondent BOOLEAN,
             nombre TEXT,
             sexo INTEGER,
@@ -37,15 +37,20 @@ def create_schema(conn: sqlite3.Connection):
 
 
         CREATE TABLE IF NOT EXISTS answers (
-            response_id INTEGER NOT NULL,
+            respondent_id TEXT NOT NULL,
             question_id TEXT NOT NULL,
             option_id INTEGER,
-            PRIMARY KEY (response_id, question_id),
+            value REAL,
 
-            FOREIGN KEY (response_id) REFERENCES responses(id),
-            FOREIGN KEY (question_id) REFERENCES questions(id),
-            FOREIGN KEY (question_id, option_id)
-                REFERENCES options(question_id, option_id)
+            PRIMARY KEY (respondent_id, question_id),
+
+            FOREIGN KEY (respondent_id) REFERENCES responses(respondent_id),
+            FOREIGN KEY (question_id) REFERENCES questions(id)
+            
+            CHECK (
+                (option_id IS NOT NULL AND value IS NULL) OR
+                (option_id IS NULL AND value IS NOT NULL)
+            )
         );
 
         """

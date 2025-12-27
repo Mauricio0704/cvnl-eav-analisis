@@ -1,6 +1,6 @@
 import pandas as pd
 
-from ..config.survey_data import HOUSEHOLD_DATA_AND_QUESTIONS
+from ..config.survey_data import HOUSEHOLD_DATA_AND_QUESTIONS, NUMERICAL_VALUE_QUESTIONS
 from ..utils.dataframe import generate_id
 
 
@@ -78,8 +78,14 @@ def household_questions_to_long_format(df: pd.DataFrame) -> pd.DataFrame:
         var_name="question_id",
         value_name="answer_id",
     )
+    new_df = new_df[new_df["answer_id"].notna()]
     new_df["answer_id"] = new_df["answer_id"].astype("Int64")
-    return new_df
+
+    is_numeric = new_df["question_id"].isin(NUMERICAL_VALUE_QUESTIONS)
+    new_df["value"] = new_df["answer_id"].where(is_numeric)
+    new_df["option_id"] = new_df["answer_id"].where(~is_numeric)
+
+    return new_df.drop("answer_id", axis=1)
 
 
 def individual_questions_to_long_format(df: pd.DataFrame) -> pd.DataFrame:
@@ -90,5 +96,11 @@ def individual_questions_to_long_format(df: pd.DataFrame) -> pd.DataFrame:
         var_name="question_id",
         value_name="answer_id",
     )
+    new_df = new_df[new_df["answer_id"].notna()]
     new_df["answer_id"] = new_df["answer_id"].astype("Int64")
-    return new_df
+
+    is_numeric = new_df["question_id"].isin(NUMERICAL_VALUE_QUESTIONS)
+    new_df["value"] = new_df["answer_id"].where(is_numeric)
+    new_df["option_id"] = new_df["answer_id"].where(~is_numeric)
+
+    return new_df.drop("answer_id", axis=1)

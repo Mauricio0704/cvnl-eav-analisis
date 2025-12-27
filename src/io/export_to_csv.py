@@ -42,7 +42,9 @@ def export_options_to_csv(df: pd.DataFrame) -> None:
 def export_household_answers_to_csv(df: pd.DataFrame) -> None:
     df = df.copy()
 
-    answers = df[["respondent_id", "question_id", "answer_id"]].reset_index(drop=True)
+    answers = df[["respondent_id", "question_id", "option_id", "value"]].reset_index(
+        drop=True
+    )
 
     answers.to_csv(PROCESSED_DATA_DIR / "answers.csv", index=False)
 
@@ -50,7 +52,9 @@ def export_household_answers_to_csv(df: pd.DataFrame) -> None:
 def export_individual_answers_to_csv(df: pd.DataFrame) -> None:
     df = df.copy()
 
-    answers = df[["respondent_id", "question_id", "answer_id"]].reset_index(drop=True)
+    answers = df[["respondent_id", "question_id", "option_id", "value"]].reset_index(
+        drop=True
+    )
 
     answers.to_csv(
         PROCESSED_DATA_DIR / "answers.csv", index=False, mode="a", header=False
