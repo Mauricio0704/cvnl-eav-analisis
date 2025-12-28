@@ -1,3 +1,6 @@
+import sqlite3
+import pandas as pd
+
 from src.ingestion.load_data import load_survey_year, load_questions_year
 from src.mapping.extract_household_block import get_household_data
 from src.mapping.extract_individual_block import get_individual_responses
@@ -14,10 +17,14 @@ from src.io.export_to_csv import (
     export_household_answers_to_csv,
     export_individual_answers_to_csv,
 )
-from src.config.paths import DATA_DIR
+from src.config.paths import DATA_DIR, DB_DIR
 from src.config.survey_data import DEMOGRAPHIC_CODES, QUESTIONS_COLUMNS_MAPPING
 from src.mapping.questions_shema import normalize_questions_schema
-from src.cleaning.clean_survey import clean_questions, clean_options
+from src.cleaning.clean_survey import clean_questions, clean_options, clean_responses
+from src.db.create_schema import create_schema
+from src.db.load_data import load_df_to_db, clear_table, clear_all_tables
+from src.db.queries import get_question_options
+from src.db.utils import exists_schema
 
 
 def main():
@@ -31,9 +38,13 @@ def main():
     household_members_lf = household_members_to_long_format(household_df, 12)
     household_clean = clean_household_responses(household_members_lf)
     household_questions_lf = household_questions_to_long_format(household_clean)
+    responses_clean = clean_responses(household_clean, DEMOGRAPHIC_CODES)
+
+    answers_clean = pd.concat([household_questions_lf, individual_lf])
+
     export_household_answers_to_csv(household_questions_lf)
     export_individual_answers_to_csv(individual_lf)
-    export_responses_to_csv(household_clean, DEMOGRAPHIC_CODES)
+    export_responses_to_csv(responses_clean)
 
     questions_with_ans_df = load_questions_year(year, base_dir)
     questions_with_options_normalized = normalize_questions_schema(
@@ -44,6 +55,24 @@ def main():
 
     options_clean = clean_options(questions_with_options_normalized)
     export_options_to_csv(options_clean)
+
+    conn = sqlite3.connect("data/db/survey.db")
+
+    if not exists_schema(conn):
+        create_schema(conn)
+
+    clear_all_tables(conn, ["answers", "questions", "options", "responses"])
+
+    with conn:
+        load_df_to_db(questions_clean, "questions", conn)
+        load_df_to_db(options_clean, "options", conn)
+        load_df_to_db(responses_clean, "responses", conn)
+        load_df_to_db(answers_clean, "answers", conn)
+
+    df = get_question_options(conn, "p12")
+    print(df)
+
+    conn.close()
 
 
 if __name__ == "__main__":

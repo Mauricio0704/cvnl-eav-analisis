@@ -2,6 +2,7 @@ import pandas as pd
 
 from ..utils.dataframe import generate_id
 from ..config.survey_data import QUESTION_SECTIONS
+from ..config.survey_data import AGE_BINS, AGE_LABELS
 
 
 def generate_questions_ids(df: pd.DataFrame) -> pd.DataFrame:
@@ -100,4 +101,38 @@ def clean_options(df: pd.DataFrame) -> pd.DataFrame:
         answer_mask, ["question_id", "option_id", "option_label"]
     ]
 
-    return answers
+    options = answers.copy()
+
+    options = options.drop_duplicates(
+        subset=["question_id", "option_id"], keep="first"
+    ).reset_index(drop=True)
+    
+    options["option_id"] = options["option_id"].astype("Int64")
+
+    return options
+
+
+def clean_responses(
+    df: pd.DataFrame, demographic_codes: dict[str, str]
+) -> pd.DataFrame:
+    responses = (
+        df[
+            [
+                "respondent_id",
+                "is_initial_respondent",
+                "nombre",
+                *demographic_codes.keys(),
+            ]
+        ]
+        .rename(columns=demographic_codes)
+    )
+
+    responses["grupo_edad"] = pd.cut(
+        responses["edad_anos"],
+        bins=AGE_BINS,
+        labels=AGE_LABELS,
+        right=True,
+        include_lowest=True,
+    )
+
+    return responses
