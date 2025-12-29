@@ -1,5 +1,11 @@
 import sqlite3
-import pandas as pd
+from src.config.paths import DB_DIR
+
+
+def get_connection() -> sqlite3.Connection:
+    db_path = DB_DIR / "survey.db"
+    conn = sqlite3.connect(db_path)
+    return conn
 
 
 def exists_schema(conn: sqlite3.Connection) -> bool:
