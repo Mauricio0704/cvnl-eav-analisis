@@ -1,6 +1,14 @@
 import sqlite3
 import pandas as pd
 
+from src.config.survey_data import AMM_ID, ID_TO_CITY_NAME
+from src.db.utils import (
+    get_injected_default_query,
+    get_cities_conditional_query,
+    get_age_groups_conditional_query,
+    get_sex_conditional_query,
+)
+
 
 def get_question_options(conn: sqlite3.Connection, question_id: str) -> pd.DataFrame:
     sql = """
@@ -19,75 +27,24 @@ def get_question_options(conn: sqlite3.Connection, question_id: str) -> pd.DataF
 
 
 def get_weighted_question_by_city(conn, question_id: str):
-    query = """
-        SELECT
-            o.option_id    AS id_respuesta,
-            o.option_label AS Respuesta,
+    conditional_query = get_cities_conditional_query()
 
-            SUM(CASE WHEN r.city = 6 THEN r.factor_cvnl ELSE 0 END) AS Apodaca,
-            SUM(CASE WHEN r.city = 39 THEN r.factor_cvnl ELSE 0 END) AS Monterrey
+    query = get_injected_default_query(conditional_query)
 
-        FROM answers a
-        JOIN responses r
-            ON a.respondent_id = r.respondent_id
-        JOIN options o
-            ON a.question_id = o.question_id
-        AND a.option_id = o.option_id
-
-        WHERE a.question_id = ?
-        AND r.is_initial_respondent = 1
-
-        GROUP BY o.option_id, o.option_label
-        ORDER BY o.option_id;
-    """
     return pd.read_sql_query(query, conn, params=(question_id,))
 
 
 def get_weighted_question_by_sex(conn, question_id: str):
-    query = """
-        SELECT
-            o.option_id    AS id_respuesta,
-            o.option_label AS Respuesta,
+    conditinal_query = get_sex_conditional_query()
 
-            SUM(CASE WHEN r.sexo = 0 THEN r.factor_cvnl ELSE 0 END) AS Hombre,
-            SUM(CASE WHEN r.sexo = 1 THEN r.factor_cvnl ELSE 0 END) AS Mujer
+    query = get_injected_default_query(conditinal_query)
 
-        FROM answers a
-        JOIN responses r
-            ON a.respondent_id = r.respondent_id
-        JOIN options o
-            ON a.question_id = o.question_id
-        AND a.option_id = o.option_id
-
-        WHERE a.question_id = ?
-        AND r.is_initial_respondent = 1
-
-        GROUP BY o.option_id, o.option_label
-        ORDER BY o.option_id;
-    """
     return pd.read_sql_query(query, conn, params=(question_id,))
 
 
 def get_weighted_question_by_age_group(conn, question_id: str):
-    query = """
-        SELECT
-            o.option_id    AS id_respuesta,
-            o.option_label AS Respuesta,
+    conditional_query = get_age_groups_conditional_query()
 
-            SUM(CASE WHEN r.grupo_edad = '18-24' THEN r.factor_cvnl ELSE 0 END) AS edad_18_24,
-            SUM(CASE WHEN r.grupo_edad = '25-34' THEN r.factor_cvnl ELSE 0 END) AS edad_25_34
+    query = get_injected_default_query(conditional_query)
 
-        FROM answers a
-        JOIN responses r
-            ON a.respondent_id = r.respondent_id
-        JOIN options o
-            ON a.question_id = o.question_id
-        AND a.option_id = o.option_id
-
-        WHERE a.question_id = ?
-        AND r.is_initial_respondent = 1
-
-        GROUP BY o.option_id, o.option_label
-        ORDER BY o.option_id;
-    """
     return pd.read_sql_query(query, conn, params=(question_id,))

@@ -1,5 +1,6 @@
 import sqlite3
 from src.config.paths import DB_DIR
+from src.config.survey_data import AMM_ID, ID_TO_CITY_NAME
 
 
 def get_connection() -> sqlite3.Connection:
@@ -20,3 +21,68 @@ def exists_schema(conn: sqlite3.Connection) -> bool:
     if cursor.fetchone() is None:
         return False
     return True
+
+
+def get_injected_default_query(conditional_sum: str) -> str:
+    query = f"""
+        SELECT
+            o.option_id    AS id_respuesta,
+            o.option_label AS Respuesta,
+
+            {conditional_sum}
+
+        FROM answers a
+        JOIN responses r
+            ON a.respondent_id = r.respondent_id
+        JOIN options o
+            ON a.question_id = o.question_id
+        AND a.option_id = o.option_id
+
+        WHERE a.question_id = ?
+        AND r.is_initial_respondent = 1
+
+        GROUP BY o.option_id, o.option_label
+        ORDER BY o.option_id;
+    """
+
+    return query
+
+
+def get_cities_conditional_query() -> str:
+    conditional_query = ""
+
+    for city_id in AMM_ID:
+        city_name = ID_TO_CITY_NAME[city_id]
+
+        conditional_query += f"""
+            SUM(CASE WHEN r.city = {city_id} THEN r.factor_cvnl ELSE 0 END) AS '{city_name}',
+        """
+
+    conditional_query += f"""
+        SUM(CASE WHEN r.city NOT IN ({', '.join(map(str, AMM_ID))}) THEN r.factor_cvnl ELSE 0 END) AS 'Resto NL'
+    """
+
+    return conditional_query
+
+
+def get_sex_conditional_query() -> str:
+    conditional_query = """
+        SUM(CASE WHEN r.sexo = 0 THEN r.factor_cvnl ELSE 0 END) AS 'Hombre',
+        SUM(CASE WHEN r.sexo = 1 THEN r.factor_cvnl ELSE 0 END) AS 'Mujer'
+    """
+
+    return conditional_query
+
+
+def get_age_groups_conditional_query() -> str:
+    conditional_query = """
+        SUM(CASE WHEN r.edad_anos BETWEEN 18 AND 25 THEN r.factor_cvnl ELSE 0 END) AS '18-24',
+        SUM(CASE WHEN r.edad_anos BETWEEN 26 AND 35 THEN r.factor_cvnl ELSE 0 END) AS '25-34',
+        SUM(CASE WHEN r.edad_anos BETWEEN 36 AND 45 THEN r.factor_cvnl ELSE 0 END) AS '35-44',
+        SUM(CASE WHEN r.edad_anos BETWEEN 46 AND 55 THEN r.factor_cvnl ELSE 0 END) AS '45-54',
+        SUM(CASE WHEN r.edad_anos BETWEEN 46 AND 55 THEN r.factor_cvnl ELSE 0 END) AS '55-64',
+        SUM(CASE WHEN r.edad_anos BETWEEN 46 AND 55 THEN r.factor_cvnl ELSE 0 END) AS '65-74',
+        SUM(CASE WHEN r.edad_anos > 74 THEN r.factor_cvnl ELSE 0 END) AS '75 o mas'
+    """
+
+    return conditional_query
