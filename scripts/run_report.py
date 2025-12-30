@@ -1,28 +1,24 @@
-from pathlib import Path
-import pandas as pd
-
 from src.config.paths import OUTPUT_DIR
 from src.db.utils import get_connection
 from src.reporting.weighted_tables import build_question_report
+from src.db.queries import get_question_sections, get_questions_by_section
 
 
 def main():
     conn = get_connection()
 
-    questions = {
-        "p1": "Principal ocupacion",
-        "p2": "Modalidad",
-    }
+    sections = get_question_sections(conn)
 
-    output_file = OUTPUT_DIR / "ocupacion.xlsx"
+    for section in sections[:1]:
+        questions_df = get_questions_by_section(conn, section)
 
-    with pd.ExcelWriter(output_file) as writer:
-        for question_id, sheet_name in questions.items():
-            df = build_question_report(conn, question_id)
-            df.to_excel(writer, sheet_name=sheet_name, index=False)
+        for _, row in questions_df.iterrows():
+            question_id = row["id"]
 
+            build_question_report(conn, question_id, question_id, section)
+        print(f"Report generated for {section} section.")
+    
     conn.close()
-    print(f"Report generated at {output_file}")
 
 
 if __name__ == "__main__":

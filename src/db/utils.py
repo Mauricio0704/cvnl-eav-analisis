@@ -48,6 +48,29 @@ def get_injected_default_query(conditional_sum: str) -> str:
     return query
 
 
+def get_question_sections_query() -> str:
+    query = """
+        SELECT DISTINCT
+            section
+        FROM questions
+        WHERE section IS NOT NULL
+        ORDER BY section;
+    """
+    return query
+
+
+def get_questions_by_section_query(section: str) -> str:
+    query = f"""
+        SELECT
+            id,
+            q_text
+        FROM questions
+        WHERE section = '{section}'
+        ORDER BY id;
+    """
+    return query
+
+
 def get_cities_conditional_query() -> str:
     conditional_query = ""
 
@@ -80,8 +103,8 @@ def get_age_groups_conditional_query() -> str:
         SUM(CASE WHEN r.edad_anos BETWEEN 26 AND 35 THEN r.factor_cvnl ELSE 0 END) AS '25-34',
         SUM(CASE WHEN r.edad_anos BETWEEN 36 AND 45 THEN r.factor_cvnl ELSE 0 END) AS '35-44',
         SUM(CASE WHEN r.edad_anos BETWEEN 46 AND 55 THEN r.factor_cvnl ELSE 0 END) AS '45-54',
-        SUM(CASE WHEN r.edad_anos BETWEEN 46 AND 55 THEN r.factor_cvnl ELSE 0 END) AS '55-64',
-        SUM(CASE WHEN r.edad_anos BETWEEN 46 AND 55 THEN r.factor_cvnl ELSE 0 END) AS '65-74',
+        SUM(CASE WHEN r.edad_anos BETWEEN 56 AND 65 THEN r.factor_cvnl ELSE 0 END) AS '55-64',
+        SUM(CASE WHEN r.edad_anos BETWEEN 66 AND 75 THEN r.factor_cvnl ELSE 0 END) AS '65-74',
         SUM(CASE WHEN r.edad_anos > 74 THEN r.factor_cvnl ELSE 0 END) AS '75 o mas'
     """
 
