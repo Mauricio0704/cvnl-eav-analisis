@@ -2,6 +2,13 @@ import pandas as pd
 from pathlib import Path
 
 
+class ExcelContext:
+    def __init__(self, writer, sheet_name, start_row=0):
+        self.writer = writer
+        self.sheet_name = sheet_name
+        self.start_row = start_row
+
+
 def get_writer_config(
     output_path: Path,
 ) -> dict:
@@ -21,31 +28,27 @@ def get_writer_config(
 
 
 def write_text_to_excel(
-    writer: pd.ExcelWriter,
-    sheet_name: str,
+    ctx: ExcelContext,
     text: str,
-    start_row: int = 0,
-) -> int:
+) -> None:
     pd.DataFrame([[text]]).to_excel(
-        writer,
-        sheet_name=sheet_name,
-        startrow=start_row,
+        ctx.writer,
+        sheet_name=ctx.sheet_name,
+        startrow=ctx.start_row,
         index=False,
         header=False,
     )
-    return start_row + 2
+    ctx.start_row += 2
 
 
 def write_table_to_excel(
-    writer: pd.ExcelWriter,
-    sheet_name: str,
+    ctx: ExcelContext,
     df: pd.DataFrame,
-    start_row: int = 0,
-) -> int:
+) -> None:
     df.to_excel(
-        writer,
-        sheet_name=sheet_name,
-        startrow=start_row,
+        ctx.writer,
+        sheet_name=ctx.sheet_name,
+        startrow=ctx.start_row,
         index=False,
     )
-    return start_row + len(df) + 3
+    ctx.start_row += len(df) + 3

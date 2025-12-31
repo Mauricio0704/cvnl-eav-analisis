@@ -7,7 +7,12 @@ from src.db.queries import (
     get_weighted_question_by_age_group,
     get_questions_by_section,
 )
-from src.utils.excel import write_text_to_excel, write_table_to_excel, get_writer_config
+from src.utils.excel import (
+    ExcelContext,
+    write_text_to_excel,
+    write_table_to_excel,
+    get_writer_config,
+)
 
 
 def build_question_report(
@@ -27,13 +32,13 @@ def build_question_report(
     config = get_writer_config(output_path)
 
     with pd.ExcelWriter(**config) as writer:
-        start_row = write_text_to_excel(
-            writer, sheet_name, f"{question_id} - {question_text}"
-        )
+        ctx = ExcelContext(writer, sheet_name)
+
+        write_text_to_excel(ctx, f"{question_id} - {question_text}")
 
         for title, df in titles_with_dfs:
-            start_row = write_text_to_excel(writer, sheet_name, title, start_row)
-            start_row = write_table_to_excel(writer, sheet_name, df, start_row)
+            write_text_to_excel(ctx, title)
+            write_table_to_excel(ctx, df)
 
 
 def build_section_report(conn, section) -> None:
