@@ -1,4 +1,3 @@
-import sqlite3
 import pandas as pd
 
 from src.db.create_schema import create_schema
