@@ -2,7 +2,7 @@ import pandas as pd
 
 from src.db.create_schema import create_schema
 from src.db.load_data import load_df_to_db, clear_all_tables
-from src.db.utils import exists_schema, get_connection
+from src.utils.database import exists_schema, get_connection
 from src.config.paths import DATA_DIR
 
 

@@ -1,7 +1,7 @@
 import pandas as pd
 
 from src.config.paths import OUTPUT_DIR
-from src.db.queries import (
+from src.db.repository import (
     get_weighted_question_by_sex,
     get_weighted_question_by_city,
     get_weighted_question_by_age_group,
