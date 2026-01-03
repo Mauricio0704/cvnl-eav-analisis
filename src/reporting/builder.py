@@ -1,0 +1,51 @@
+import pandas as pd
+
+from src.config.paths import OUTPUT_DIR
+from src.reporting.extend_tables import add_total_row
+from src.db.repository import (
+    get_questions_by_section,
+    get_weighted_question_by_dimension
+)
+from src.utils.excel import (
+    ExcelContext,
+    write_text_to_excel,
+    write_table_to_excel,
+    get_writer_config,
+)
+
+
+def build_question_report(
+    conn, question_id: str, question_text: str, sheet_name: str, section: str
+) -> None:
+    general_df = add_total_row(get_weighted_question_by_dimension(conn, question_id, "general"))
+    city_df = add_total_row(get_weighted_question_by_dimension(conn, question_id, "city"))
+    age_df = add_total_row(get_weighted_question_by_dimension(conn, question_id, "age_group"))
+    sex_df = add_total_row(get_weighted_question_by_dimension(conn, question_id, "sex"))
+
+    titles_with_dfs = [
+        ("Generales", general_df),
+        ("Respuesta por unidad geográfica", city_df),
+        ("Respuesta por sexo", sex_df),
+        ("Respuesta por edad", age_df),
+    ]
+
+    output_path = OUTPUT_DIR / f"{section}.xlsx"
+    config = get_writer_config(output_path)
+
+    with pd.ExcelWriter(**config) as writer:
+        ctx = ExcelContext(writer, sheet_name)
+
+        write_text_to_excel(ctx, f"{question_id} - {question_text}")
+
+        for title, df in titles_with_dfs:
+            write_text_to_excel(ctx, title)
+            write_table_to_excel(ctx, df)
+
+
+def build_section_report(conn, section) -> None:
+    questions_df = get_questions_by_section(conn, section)
+
+    for _, question in questions_df.iterrows():
+        build_question_report(
+            conn, question["id"], question["q_text"], question["id"], section
+        )
