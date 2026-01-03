@@ -1,5 +1,12 @@
 from src.config.survey_data import AMM_ID, ID_TO_CITY_NAME
 
+
+def get_general_conditionals() -> list[str]:
+    return [
+        "SUM(r.factor_cvnl) AS 'Total'",
+    ]
+
+
 def get_cities_conditionals() -> list[str]:
     conditionals = []
 

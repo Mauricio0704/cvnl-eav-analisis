@@ -1,6 +1,6 @@
 import pandas as pd
 
-from ..config.survey_data import QUESTIONS_COLUMNS_MAPPING
+from src.config.survey_data import QUESTIONS_COLUMNS_MAPPING
 
 
 def normalize_questions_schema(df: pd.DataFrame) -> pd.DataFrame:

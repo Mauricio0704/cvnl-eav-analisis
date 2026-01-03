@@ -1,11 +1,10 @@
 import pandas as pd
 
 from src.config.paths import OUTPUT_DIR
+from src.reporting.extend_tables import add_total_row
 from src.db.repository import (
-    get_weighted_question_by_sex,
-    get_weighted_question_by_city,
-    get_weighted_question_by_age_group,
     get_questions_by_section,
+    get_weighted_question_by_dimension
 )
 from src.utils.excel import (
     ExcelContext,
@@ -18,11 +17,13 @@ from src.utils.excel import (
 def build_question_report(
     conn, question_id: str, question_text: str, sheet_name: str, section: str
 ) -> None:
-    city_df = get_weighted_question_by_city(conn, question_id)
-    age_df = get_weighted_question_by_age_group(conn, question_id)
-    sex_df = get_weighted_question_by_sex(conn, question_id)
+    general_df = add_total_row(get_weighted_question_by_dimension(conn, question_id, "general"))
+    city_df = add_total_row(get_weighted_question_by_dimension(conn, question_id, "city"))
+    age_df = add_total_row(get_weighted_question_by_dimension(conn, question_id, "age_group"))
+    sex_df = add_total_row(get_weighted_question_by_dimension(conn, question_id, "sex"))
 
     titles_with_dfs = [
+        ("Generales", general_df),
         ("Respuesta por unidad geográfica", city_df),
         ("Respuesta por sexo", sex_df),
         ("Respuesta por edad", age_df),

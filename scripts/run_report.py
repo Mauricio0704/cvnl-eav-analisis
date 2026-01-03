@@ -1,5 +1,5 @@
 from src.utils.database import get_connection
-from src.reporting.weighted_tables import build_section_report
+from src.reporting.builder import build_section_report
 from src.db.repository import get_question_sections
 
 

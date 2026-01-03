@@ -1,3 +1,5 @@
+from typing import Self
+
 class QueryBuilder:
     def __init__(self):
         self._select: list[str] = []
@@ -7,27 +9,27 @@ class QueryBuilder:
         self._group_by: list[str] = []
         self._order_by: list[str] = []
 
-    def select(self, *columns: str) -> "QueryBuilder":
+    def select(self, *columns: str) -> Self:
         self._select.extend(columns)
         return self
 
-    def from_(self, table: str) -> "QueryBuilder":
+    def from_(self, table: str) -> Self:
         self._from = table
         return self
 
-    def join(self, join_sql: str) -> "QueryBuilder":
+    def join(self, join_sql: str) -> Self:
         self._joins.append(join_sql)
         return self
 
-    def where(self, condition: str) -> "QueryBuilder":
+    def where(self, condition: str) -> Self:
         self._where.append(condition)
         return self
 
-    def group_by(self, *columns: str) -> "QueryBuilder":
+    def group_by(self, *columns: str) -> Self:
         self._group_by.extend(columns)
         return self
 
-    def order_by(self, *columns: str) -> "QueryBuilder":
+    def order_by(self, *columns: str) -> Self:
         self._order_by.extend(columns)
         return self
 
