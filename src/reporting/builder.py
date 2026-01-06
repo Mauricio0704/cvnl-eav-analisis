@@ -5,6 +5,7 @@ from src.reporting.extend_tables import add_total_row, get_relative_table
 from src.db.repository import (
     get_questions_by_section,
     get_weighted_question_by_dimension,
+    get_weighted_question_by_income_group
 )
 from src.utils.excel import (
     ExcelContext,
@@ -34,6 +35,12 @@ def build_question_report(
         ("Respuesta por sexo", sex_df),
         ("Respuesta por edad", age_df),
     ]
+
+    if section == "economia":
+        income_df = add_total_row(
+            get_weighted_question_by_income_group(conn, question_id)
+        )
+        titles_with_dfs.append(("Respuesta por grupo de ingreso", income_df))
 
     output_path = OUTPUT_DIR / f"{section}.xlsx"
     config = get_writer_config(output_path)

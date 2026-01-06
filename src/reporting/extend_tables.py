@@ -13,9 +13,9 @@ def add_total_row(df: pd.DataFrame) -> pd.DataFrame:
 def get_relative_table(df: pd.DataFrame) -> pd.DataFrame:
     relative_df = df.copy()
     for col in df.columns[2:]:
-        total = df[col].sum()
-        if total > 0:
-            relative_df[col] = (df[col] / total) * 100
+        total = df[col].iloc[-1]
+        if total == 0:
+            relative_df[col] = 0
         else:
-            relative_df[col] = 0.0
+            relative_df[col] = (df[col] / total) * 100
     return relative_df

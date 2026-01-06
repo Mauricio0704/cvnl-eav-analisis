@@ -40,21 +40,3 @@ def get_age_groups_conditionals() -> list[str]:
         "SUM(CASE WHEN r.edad_anos BETWEEN 66 AND 75 THEN r.factor_cvnl ELSE 0 END) AS '65-74'",
         "SUM(CASE WHEN r.edad_anos > 74 THEN r.factor_cvnl ELSE 0 END) AS '75 o mas'",
     ]
-
-
-def get_income_groups_conditionals() -> list[str]:
-    return [
-        "SUM(CASE WHEN CAST(a_income.value AS INTEGER) = 1 THEN r.factor_cvnl ELSE 0 END) AS 'Sin ingreso'",
-        "SUM(CASE WHEN CAST(a_income.value AS INTEGER) = 2 THEN r.factor_cvnl ELSE 0 END) AS 'Menos de 1 SM'",
-        "SUM(CASE WHEN CAST(a_income.value AS INTEGER) = 3 THEN r.factor_cvnl ELSE 0 END) AS '1-2 SM'",
-        "SUM(CASE WHEN CAST(a_income.value AS INTEGER) = 4 THEN r.factor_cvnl ELSE 0 END) AS '2-3 SM'",
-        "SUM(CASE WHEN CAST(a_income.value AS INTEGER) = 5 THEN r.factor_cvnl ELSE 0 END) AS '3-4 SM'",
-        "SUM(CASE WHEN CAST(a_income.value AS INTEGER) = 6 THEN r.factor_cvnl ELSE 0 END  AS '4-5 SM'",
-        "SUM(CASE WHEN CAST(a_income.value AS INTEGER) = 7 THEN r.factor_cvnl ELSE 0 END) AS '5-6 SM'",
-        "SUM(CASE WHEN CAST(a_income.value AS INTEGER) = 8 THEN r.factor_cvnl ELSE 0 END) AS '6-7 SM'",
-        "SUM(CASE WHEN CAST(a_income.value AS INTEGER) = 9 THEN r.factor_cvnl ELSE 0 END) AS '7-8 SM'",
-        "SUM(CASE WHEN CAST(a_income.value AS INTEGER) = 10 THEN r.factor_cvnl ELSE 0 END) AS '8-9 SM'",
-        "SUM(CASE WHEN CAST(a_income.value AS INTEGER) = 11 THEN r.factor_cvnl ELSE 0 END) AS '9-10 SM'",
-        "SUM(CASE WHEN CAST(a_income.value AS INTEGER) = 12 THEN r.factor_cvnl ELSE 0 END) AS '10 o más SM'",
-        "SUM(CASE WHEN CAST(a_income.value AS INTEGER) = 9999 THEN r.factor_cvnl ELSE 0 END) AS 'No contesta'",
-    ]

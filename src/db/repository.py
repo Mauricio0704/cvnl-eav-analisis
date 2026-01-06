@@ -6,6 +6,9 @@ from src.db.queries.conditionals import (
     get_age_groups_conditionals,
     get_cities_conditionals,
 )
+from src.db.queries.provisional import (
+    get_income_query,
+)
 
 CONDITIONALS_BY_DIMENSION = {
     "general": get_general_conditionals,
@@ -51,4 +54,17 @@ def get_weighted_question_by_dimension(
         question_id,
         conditionals,
         initial_only=initial_only,
+    )
+
+
+def get_weighted_question_by_income_group(
+    conn,
+    question_id: str,
+):
+    income_query = get_income_query()
+
+    return pd.read_sql_query(
+        income_query,
+        conn,
+        params=(question_id,),
     )
