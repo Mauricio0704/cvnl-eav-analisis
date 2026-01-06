@@ -9,10 +9,6 @@ description = "Como Vamos Nuevo Leon survey processing and analysis"
 readme = "README.md"
 requires-python = ">=3.10"
 
-authors = [
-  { name = "Mauricio Sanchez", email = "your@email.com" }
-]
-
 dependencies = [
   "pandas>=2.0",
   "openpyxl>=3.1"
