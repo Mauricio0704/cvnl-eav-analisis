@@ -29,6 +29,18 @@ def get_sex_conditionals() -> list[str]:
         "SUM(CASE WHEN r.sexo = 1 THEN r.factor_cvnl ELSE 0 END) AS 'Mujer'",
     ]
 
+def get_men_per_city_conditionals() -> list[str]:
+    return [
+        f"SUM(CASE WHEN r.city = {city_id} AND r.sexo = 0 THEN r.factor_cvnl ELSE 0 END) AS '{ID_TO_CITY_NAME[city_id]}'"
+        for city_id in AMM_ID
+    ]
+
+def get_women_per_city_conditionals() -> list[str]:
+    return [
+        f"SUM(CASE WHEN r.city = {city_id} AND r.sexo = 1 THEN r.factor_cvnl ELSE 0 END) AS '{ID_TO_CITY_NAME[city_id]}'"
+        for city_id in AMM_ID
+    ]
+
 
 def get_age_groups_conditionals() -> list[str]:
     return [

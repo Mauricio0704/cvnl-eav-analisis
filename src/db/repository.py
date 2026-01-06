@@ -4,6 +4,8 @@ from src.db.queries.conditionals import (
     get_general_conditionals,
     get_sex_conditionals,
     get_age_groups_conditionals,
+    get_men_per_city_conditionals,
+    get_women_per_city_conditionals,
     get_cities_conditionals,
 )
 from src.db.queries.provisional import (
@@ -15,6 +17,8 @@ CONDITIONALS_BY_DIMENSION = {
     "city": get_cities_conditionals,
     "sex": get_sex_conditionals,
     "age_group": get_age_groups_conditionals,
+    "men_per_city": get_men_per_city_conditionals,
+    "women_per_city": get_women_per_city_conditionals,
 }
 
 from src.db.queries.questions import (

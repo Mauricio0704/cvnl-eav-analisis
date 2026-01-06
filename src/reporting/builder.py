@@ -28,10 +28,18 @@ def build_question_report(
         get_weighted_question_by_dimension(conn, question_id, "age_group")
     )
     sex_df = add_total_row(get_weighted_question_by_dimension(conn, question_id, "sex"))
+    men_per_city_df = add_total_row(
+        get_weighted_question_by_dimension(conn, question_id, "men_per_city")
+    )
+    women_per_city_df = add_total_row(
+        get_weighted_question_by_dimension(conn, question_id, "women_per_city")
+    )
 
     titles_with_dfs = [
         ("Generales", general_df),
         ("Respuesta por unidad geográfica", city_df),
+        ("Respuesta de hombres por unidad geográfica", men_per_city_df),
+        ("Respuesta de mujeres por unidad geográfica", women_per_city_df),
         ("Respuesta por sexo", sex_df),
         ("Respuesta por edad", age_df),
     ]
