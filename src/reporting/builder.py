@@ -5,7 +5,7 @@ from src.reporting.extend_tables import add_total_row, get_relative_table
 from src.db.repository import (
     get_questions_by_section,
     get_weighted_question_by_dimension,
-    get_weighted_question_by_income_group
+    get_weighted_question_by_income_group,
 )
 from src.utils.excel import (
     ExcelContext,
@@ -18,21 +18,32 @@ from src.utils.excel import (
 def build_question_report(
     conn, question_id: str, question_text: str, sheet_name: str, section: str
 ) -> None:
+    if question_id.startswith("cp"):
+        initial_only = False
+    else:
+        initial_only = True
+
     general_df = add_total_row(
-        get_weighted_question_by_dimension(conn, question_id, "general")
+        get_weighted_question_by_dimension(conn, question_id, "general", initial_only)
     )
     city_df = add_total_row(
-        get_weighted_question_by_dimension(conn, question_id, "city")
+        get_weighted_question_by_dimension(conn, question_id, "city", initial_only)
     )
     age_df = add_total_row(
-        get_weighted_question_by_dimension(conn, question_id, "age_group")
+        get_weighted_question_by_dimension(conn, question_id, "age_group", initial_only)
     )
-    sex_df = add_total_row(get_weighted_question_by_dimension(conn, question_id, "sex"))
+    sex_df = add_total_row(
+        get_weighted_question_by_dimension(conn, question_id, "sex", initial_only)
+    )
     men_per_city_df = add_total_row(
-        get_weighted_question_by_dimension(conn, question_id, "men_per_city")
+        get_weighted_question_by_dimension(
+            conn, question_id, "men_per_city", initial_only
+        )
     )
     women_per_city_df = add_total_row(
-        get_weighted_question_by_dimension(conn, question_id, "women_per_city")
+        get_weighted_question_by_dimension(
+            conn, question_id, "women_per_city", initial_only
+        )
     )
 
     titles_with_dfs = [
@@ -72,3 +83,12 @@ def build_section_report(conn, section) -> None:
         build_question_report(
             conn, question["id"], question["q_text"], question["id"], section
         )
+
+        if question["id"].startswith("cp"):
+            build_question_report(
+                conn,
+                question["id"],
+                question["q_text"],
+                question["id"],
+                section + "_sin_factor",
+            )
