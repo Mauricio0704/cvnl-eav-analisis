@@ -49,7 +49,7 @@ def get_weighted_question_by_dimension(
     initial_only: bool = True,
 ):
     try:
-        conditionals = CONDITIONALS_BY_DIMENSION[dimension]()
+        conditionals = CONDITIONALS_BY_DIMENSION[dimension](initial_only=initial_only)
     except KeyError:
         raise ValueError(f"Unknown dimension: {dimension}")
 
