@@ -16,13 +16,8 @@ from src.utils.excel import (
 
 
 def build_question_report(
-    conn, question_id: str, question_text: str, sheet_name: str, section: str
+    conn, question_id: str, question_text: str, sheet_name: str, section: str, initial_only: bool = True,
 ) -> None:
-    if question_id.startswith("cp"):
-        initial_only = False
-    else:
-        initial_only = True
-
     general_df = add_total_row(
         get_weighted_question_by_dimension(conn, question_id, "general", initial_only)
     )
@@ -91,4 +86,5 @@ def build_section_report(conn, section) -> None:
                 question["q_text"],
                 question["id"],
                 section + "_sin_factor",
+                initial_only=False,
             )
