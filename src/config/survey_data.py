@@ -128,7 +128,8 @@ NUMERICAL_VALUE_QUESTIONS = [
     "p103_2",
 ]
 
-AMM_ID = [39, 26, 46, 6, 21, 19, 49, 31, 18, 48, 9]
+AMM_ID = [6, 9, 21, 18, 26, 31, 39, 46, 19, 48, 49]
+PERIFERIA_ID = [10, 12, 25, 41, 45]
 
 ID_TO_CITY_NAME = {
     39: "Monterrey",
