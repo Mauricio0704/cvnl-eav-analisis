@@ -127,6 +127,13 @@ NUMERICAL_VALUE_QUESTIONS = [
     "p56",
     "p103_1",
     "p103_2",
+    "TIEMPO_TRABAJO",
+    "PRESTACIONES", 
+    "TRABAJO_FORMAL",   
+    "QUEHACERES_HOGAR", 
+    "CUIDADOS_PERSONAS",    
+    "TOTAL_MIN_TRABAJO_REM_Y_NOREM",    
+    "OCIO", 
 ]
 
 AMM_ID = [6, 9, 21, 18, 26, 31, 39, 46, 19, 48, 49]

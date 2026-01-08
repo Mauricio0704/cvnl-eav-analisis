@@ -9,6 +9,7 @@ from src.cleaning.transform_structure import (
 from src.cleaning.clean_household import clean_household_responses
 from src.cleaning.clean_survey import clean_questions, clean_options, clean_responses
 from src.mapping.questions_shema import normalize_questions_schema
+from src.mapping.derived_variables import add_derived_variables
 from src.io.export_to_csv import (
     export_responses_to_csv,
     export_questions_to_csv,
@@ -40,7 +41,8 @@ def main():
 
     # Individual responses
     individual_df = get_individual_responses(survey_df)
-    individual_lf = individual_questions_to_long_format(individual_df)
+    individual_with_derived_df = add_derived_variables(individual_df)
+    individual_lf = individual_questions_to_long_format(individual_with_derived_df)
     export_individual_answers_to_csv(individual_lf)
 
     # Questions and options
