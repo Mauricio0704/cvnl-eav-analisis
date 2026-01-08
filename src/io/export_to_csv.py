@@ -59,3 +59,11 @@ def export_individual_answers_to_csv(df: pd.DataFrame) -> None:
     answers.to_csv(
         PROCESSED_DATA_DIR / "answers.csv", index=False, mode="a", header=False
     )
+
+
+def export_respondent_attributes_to_csv(df: pd.DataFrame) -> None:
+    df = df.copy()
+
+    attributes = df.reset_index(drop=True)
+
+    attributes.to_csv(PROCESSED_DATA_DIR / "respondent_attributes.csv", index=False)
