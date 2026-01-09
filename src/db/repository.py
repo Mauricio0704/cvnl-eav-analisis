@@ -10,6 +10,7 @@ from src.db.queries.conditionals import (
 )
 from src.db.queries.provisional import (
     get_income_query,
+    get_disaggregation_query,
 )
 
 CONDITIONALS_BY_DIMENSION = {
@@ -72,3 +73,43 @@ def get_weighted_question_by_income_group(
         conn,
         params=(question_id,),
     )
+
+
+def build_disaggregation_report(
+    conn,
+    question_id: str,
+    disaggregation: str,
+    initial_only: bool = True,
+) -> pd.DataFrame:
+    sql = get_disaggregation_query()
+
+    df_long = pd.read_sql_query(
+        sql,
+        conn,
+        params={
+            "question_id": question_id,
+            "dimension": disaggregation,
+        }
+    )
+
+    if df_long.empty:
+        return df_long
+
+    df_pivot = (
+        df_long
+        .pivot_table(
+            index=["id_respuesta", "Respuesta"],
+            columns="grupo",
+            values="valor",
+            aggfunc="sum",
+            fill_value=0,
+        )
+        .reset_index()
+    )
+
+    fixed_cols = ["id_respuesta", "Respuesta"]
+    group_cols = [c for c in df_pivot.columns if c not in fixed_cols]
+
+    df_pivot = df_pivot[fixed_cols + group_cols]
+
+    return df_pivot

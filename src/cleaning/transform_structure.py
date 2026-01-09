@@ -1,8 +1,11 @@
 import pandas as pd
 
-from ..config.survey_data import HOUSEHOLD_DATA_AND_QUESTIONS, NUMERICAL_VALUE_QUESTIONS
-from ..utils.dataframe import generate_id
-
+from src.config.survey_data import (
+    HOUSEHOLD_DATA_AND_QUESTIONS,
+    NUMERICAL_VALUE_QUESTIONS,
+)
+from src.utils.dataframe import generate_id
+from src.mapping.extract_respondent_attributes import ATTRIBUTES_MAP
 
 def remove_emtpy_rows(household_data: pd.DataFrame) -> pd.DataFrame:
     person_mask = household_data.loc[
@@ -113,9 +116,10 @@ def respondent_attributes_to_long_format(
         df,
         id_vars=["respondent_id"],
         value_vars=[col for col in df.columns if col != "respondent_id"],
-        var_name="attribute",
+        var_name="question_id",
         value_name="value",
     )
+    new_df["attribute"] = new_df["question_id"].map(ATTRIBUTES_MAP)
 
     new_df = new_df[new_df["value"].notna()]
 

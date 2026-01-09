@@ -1,6 +1,9 @@
 import pandas as pd
 
 def add_total_row(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty:
+        return df
+
     total_row = df.iloc[:, 2:].sum()
     total_row.name = 'Total'
     total_df = pd.DataFrame(total_row).T
@@ -11,6 +14,10 @@ def add_total_row(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def get_relative_table(df: pd.DataFrame) -> pd.DataFrame:
+    # check if df is not empty
+    if df.empty:
+        return df
+
     relative_df = df.copy()
     for col in df.columns[2:]:
         total = df[col].iloc[-1]

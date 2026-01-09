@@ -53,6 +53,15 @@ def create_schema(conn: sqlite3.Connection):
             )
         );
 
+        CREATE TABLE IF NOT EXISTS respondent_attributes (
+            respondent_id TEXT NOT NULL,
+            question_id TEXT NOT NULL,
+            attribute TEXT NOT NULL,
+            value INTEGER NOT NULL,
+            PRIMARY KEY (respondent_id, attribute),
+            FOREIGN KEY (respondent_id) REFERENCES responses(respondent_id)
+        );
+
         """
     )
 

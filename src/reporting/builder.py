@@ -1,4 +1,5 @@
 import pandas as pd
+import json
 
 from src.config.paths import OUTPUT_DIR
 from src.reporting.extend_tables import add_total_row, get_relative_table
@@ -13,10 +14,19 @@ from src.utils.excel import (
     write_table_to_excel,
     get_writer_config,
 )
+from src.db.repository import build_disaggregation_report
+
+with open("src/config/disaggregations.json", "r") as file:
+    data = json.load(file)
 
 
 def build_question_report(
-    conn, question_id: str, question_text: str, sheet_name: str, section: str, initial_only: bool = True,
+    conn,
+    question_id: str,
+    question_text: str,
+    sheet_name: str,
+    section: str,
+    initial_only: bool = True,
 ) -> None:
     general_df = add_total_row(
         get_weighted_question_by_dimension(conn, question_id, "general", initial_only)
@@ -49,6 +59,21 @@ def build_question_report(
         ("Respuesta por sexo", sex_df),
         ("Respuesta por edad", age_df),
     ]
+
+    question_specific_disaggregations = data.get(question_id, [])
+
+    for disaggregation in question_specific_disaggregations:
+
+        df = add_total_row(
+            build_disaggregation_report(
+                conn,
+                question_id,
+                disaggregation["type"],
+                initial_only,
+            )
+        )
+
+        titles_with_dfs.append((f"Respuesta por {disaggregation["type"]}", df))
 
     if section == "economia":
         income_df = add_total_row(
