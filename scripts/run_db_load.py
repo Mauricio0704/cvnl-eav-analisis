@@ -22,6 +22,9 @@ def main():
     options = pd.read_csv(DATA_DIR / "processed/options.csv")
     responses = pd.read_csv(DATA_DIR / "processed/responses.csv")
     answers = pd.read_csv(DATA_DIR / "processed/answers.csv")
+    respondent_attributes = pd.read_csv(
+        DATA_DIR / "processed/respondent_attributes.csv"
+    )
 
     print("Writing to database...")
     with conn:
@@ -29,7 +32,8 @@ def main():
         load_df_to_db(options, "options", conn)
         load_df_to_db(responses, "responses", conn)
         load_df_to_db(answers, "answers", conn)
-
+        load_df_to_db(respondent_attributes, "respondent_attributes", conn)
+        
     conn.close()
     print("Load completed")
 

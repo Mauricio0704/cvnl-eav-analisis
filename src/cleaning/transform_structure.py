@@ -104,3 +104,19 @@ def individual_questions_to_long_format(df: pd.DataFrame) -> pd.DataFrame:
     new_df["option_id"] = new_df["answer_id"].where(~is_numeric)
 
     return new_df.drop("answer_id", axis=1)
+
+
+def respondent_attributes_to_long_format(
+    df: pd.DataFrame,
+) -> pd.DataFrame:
+    new_df = pd.melt(
+        df,
+        id_vars=["respondent_id"],
+        value_vars=[col for col in df.columns if col != "respondent_id"],
+        var_name="attribute",
+        value_name="value",
+    )
+
+    new_df = new_df[new_df["value"].notna()]
+
+    return new_df
