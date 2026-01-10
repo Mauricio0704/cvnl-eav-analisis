@@ -1,4 +1,4 @@
-from src.ingestion.load_data import load_survey_year, load_questions_year
+from src.ingestion.load_data import load_survey_year, load_questions_year, load_disaggregations
 from src.mapping.extract_household_block import get_household_data
 from src.mapping.extract_individual_block import get_individual_responses
 from src.mapping.extract_respondent_attributes import get_respondent_attributes
@@ -63,8 +63,10 @@ def main():
     export_questions_to_csv(questions_clean)
     export_options_to_csv(options_clean)
 
-    print("Ingestion completed.")
+    # Disaggregations
+    disaggregations_raw = load_disaggregations(year, base_dir)
 
+    print("Ingestion completed.")
 
 if __name__ == "__main__":
     main()
