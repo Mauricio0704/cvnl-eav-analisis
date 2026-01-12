@@ -1,4 +1,8 @@
 import pandas as pd
+import numpy as np
+
+
+# Ocupación
 
 def tiempo_trabajo_minutes(df):
     # (p3_1 * 60) + p3_2
@@ -83,6 +87,235 @@ def ocio(df):
     return new_df
 
 
+# Salud
+
+def tiempo_espera_consulta(df):
+    # (p103_1 * 60) + p103_2
+    new_df = df.copy()
+
+    valid_p103_1 = new_df["p103_1"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
+    valid_p103_2 = new_df["p103_2"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
+
+    new_df["TIEMPO_ESPERA_CONSULTA"] = (valid_p103_1 * 60) + valid_p103_2
+
+    return new_df
+
+
+def problema_mental(df):
+    # Those  who answered 1, 2 or 3 in p107_1, p107_2 or p107_3
+    new_df = df.copy()
+
+    mental_cols = ["p107_1", "p107_2", "p107_3"]
+
+    new_df["AL_MENOS_UN_PROBLEMA_MENTAL"] = (
+        new_df[mental_cols]
+        .isin([1, 2, 3])
+        .any(axis=1)
+        .astype(int)
+    )
+
+    return new_df
+
+
+# Generales respondiente
+
+def rangos_edad(df):
+    new_df = df.copy()
+
+    bins = [17, 24, 34, 44, 54, 64, 74, 123]
+    labels = [
+        "18-24",
+        "25-34",
+        "35-44",
+        "45-54",
+        "55-64",
+        "65-74",
+        "75 o más",
+    ]
+
+    new_df["RANGOS_EDAD"] = pd.cut(
+        new_df["cp4_1"].replace(9999, pd.NA),
+        bins=bins,
+        labels=labels,
+        right=True
+    )
+
+    return new_df
+
+
+#Generales hogar
+
+# Movilidad
+
+def tiempo_espera(df):
+    # (p21_1 * 60) + p21_2
+    new_df = df.copy()
+
+    valid_p21_1 = new_df["p21_1"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
+    valid_p21_2 = new_df["p21_2"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
+    new_df["TIEMPO_ESPERA"] = (valid_p21_1 * 60) + valid_p21_2
+
+    return new_df
+
+
+def costo_total_viaje(df):
+    # p24 + p25
+    new_df = df.copy()
+
+    valid_p24 = new_df["p24"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
+    valid_p25 = new_df["p25"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
+    new_df["COSTO_TOTAL_VIAJE_REDONDO"] = valid_p24 + valid_p25
+
+    return new_df
+
+
+def tiempo_ida(df):
+    # (27_1 * 60) + p27_2
+    new_df = df.copy()
+
+    valid_p27_1 = new_df["p27_1"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
+    valid_p27_2 = new_df["p27_2"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
+    new_df["TIEMPO_IDA"] = (valid_p27_1 * 60) + valid_p27_2
+
+    return new_df
+
+
+def tiempo_regreso(df):
+    # (p28_1 * 60) + p28_2
+    new_df = df.copy()
+
+    valid_p28_1 = new_df["p28_1"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
+    valid_p28_2 = new_df["p28_2"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
+    new_df["TIEMPO_REGRESO"] = (valid_p28_1 * 60) + valid_p28_2
+
+    return new_df
+
+
+def tiempo_total_traslado(df):
+    # tiempo_ida + tiempo_regreso
+    new_df = df.copy()
+
+    new_df["TIEMPO_TOTAL_TRASLADO"] = new_df[["TIEMPO_IDA", "TIEMPO_REGRESO"]].sum(axis=1, min_count=1)
+
+    return new_df
+
+
+def usa_transporte_publico(df):
+    new_df = df.copy()
+
+    new_df["USA_TRANSPORTE_PUBLICO"] = (
+        new_df["p17"].isin([2, 8, 10]) |
+        new_df["p29"].isin([1])
+    ).astype(int)
+
+    return new_df
+
+
+def usa_metro(df):
+    new_df = df.copy()
+
+    new_df["USA_METRO"] = (
+        new_df["p17"].isin([8]) |
+        new_df["p30"].isin([1])
+    ).astype(int)
+
+    return new_df
+
+
+def victima_tp(df):
+    new_df = df.copy()
+
+    victima_cols = ["p39_1", "p39_2", "p39_3", "p39_4"]
+
+    fue_victima = new_df[victima_cols].isin([1]).any(axis=1)
+
+    usa_tp = new_df["USA_TRANSPORTE_PUBLICO"] == 1
+
+    new_df["VICTIMA_TP"] = np.where(
+        usa_tp,
+        fue_victima.astype(int),
+        pd.NA
+    )
+
+    return new_df
+
+
+def tiempo_camina(df):
+    # (p20_1 * 60) + p20_2
+    new_df = df.copy()
+
+    valid_p20_1 = new_df["p20_1"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
+    valid_p20_2 = new_df["p20_2"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
+    new_df["TIEMPO_CAMINA"] = (valid_p20_1 * 60) + valid_p20_2
+
+    return new_df
+
+
+# Discriminación
+
+def num_discriminaciones(df):
+    # Count of questions p89_1 to p89_16 with answer 1
+    new_df = df.copy()
+
+    discrim_cols = [f"p89_{i}" for i in range(1, 17)]
+
+    new_df["NUM_DISCRIMINACIONES"] = (
+        new_df[discrim_cols]
+        .isin([1])
+        .sum(axis=1)
+    )
+
+    return new_df
+
+
+def al_menos_una_discriminacion(df):
+    # Those who answered 1 in any of p89_1 to p89_16
+    new_df = df.copy()
+
+    discrim_cols = [f"p89_{i}" for i in range(1, 17)]
+
+    new_df["AL_MENOS_UNA_DISCRIMINACION"] = (
+        new_df[discrim_cols]
+        .isin([1])
+        .any(axis=1)
+        .astype(int)
+    )
+
+    return new_df
+
+
+# Gobierno
+
+def num_acciones_pc(df):
+    # Count of questions p161_1 to p161_9 with answer 1
+    new_df = df.copy()
+
+    accion_cols = [f"p161_{i}" for i in range(1, 10)]
+    new_df["NUM_ACCIONES_PC"] = (
+        new_df[accion_cols]
+        .isin([1])
+        .sum(axis=1)
+    )
+
+    return new_df
+
+
+def al_menos_una_accion_pc(df):
+    # Those who answered 1 in any of p161_1 to p161_9
+    new_df = df.copy()
+
+    accion_cols = [f"p161_{i}" for i in range(1, 10)]
+
+    new_df["AL_MENOS_UNA_ACCION_PC"] = (
+        new_df[accion_cols]
+        .isin([1])
+        .any(axis=1)
+        .astype(int)
+    )
+
+    return new_df
+    
+
 def add_derived_variables(df):
     df = tiempo_trabajo_minutes(df)
     df = prestaciones(df)
@@ -91,4 +324,20 @@ def add_derived_variables(df):
     df = cuidado_personas(df)
     df = total_trabajo_minutes(df)
     df = ocio(df)
+    df = tiempo_espera_consulta(df)
+    df = problema_mental(df)
+    ##df = rangos_edad(df)
+    df = tiempo_espera(df)
+    df = costo_total_viaje(df)
+    df = tiempo_ida(df)
+    df = tiempo_regreso(df)
+    df = tiempo_total_traslado(df)
+    df = usa_transporte_publico(df)
+    df = usa_metro(df)
+    df = victima_tp(df)
+    df = tiempo_camina(df)
+    df = num_discriminaciones(df)
+    df = al_menos_una_discriminacion(df)
+    df = num_acciones_pc(df)
+    df = al_menos_una_accion_pc(df)
     return df
