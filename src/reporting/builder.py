@@ -1,7 +1,7 @@
 import pandas as pd
 import json
 
-from src.config.paths import OUTPUT_DIR
+from src.config.paths import OUTPUT_DIR, PROCESSED_DATA_DIR
 from src.reporting.extend_tables import add_total_row, get_relative_table
 from src.db.repository import (
     get_questions_by_section,
@@ -16,7 +16,7 @@ from src.utils.excel import (
 )
 from src.db.repository import build_disaggregation_report
 
-with open("src/config/disaggregations.json", "r") as file:
+with open(PROCESSED_DATA_DIR / "disaggregations.json", "r") as file:
     data = json.load(file)
 
 
@@ -62,24 +62,20 @@ def build_question_report(
 
     question_specific_disaggregations = data.get(question_id, [])
 
+    handled_disaggregations = ["ingreso", "tipo_trabajo"]
     for disaggregation in question_specific_disaggregations:
+        if disaggregation["type"] in handled_disaggregations:
 
-        df = add_total_row(
-            build_disaggregation_report(
-                conn,
-                question_id,
-                disaggregation["type"],
-                initial_only,
+            df = add_total_row(
+                build_disaggregation_report(
+                    conn,
+                    question_id,
+                    disaggregation["type"],
+                    initial_only,
+                )
             )
-        )
 
-        titles_with_dfs.append((f"Respuesta por {disaggregation["type"]}", df))
-
-    if section == "economia":
-        income_df = add_total_row(
-            get_weighted_question_by_income_group(conn, question_id)
-        )
-        titles_with_dfs.append(("Respuesta por grupo de ingreso", income_df))
+            titles_with_dfs.append((f"Respuesta por {disaggregation["type"]}", df))
 
     output_path = OUTPUT_DIR / f"{section}.xlsx"
     config = get_writer_config(output_path)

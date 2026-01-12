@@ -1,4 +1,8 @@
-from src.ingestion.load_data import load_survey_year, load_questions_year, load_disaggregations
+from src.ingestion.load_data import (
+    load_survey_year,
+    load_questions_year,
+    load_disaggregations,
+)
 from src.mapping.extract_household_block import get_household_data
 from src.mapping.extract_individual_block import get_individual_responses
 from src.mapping.extract_respondent_attributes import get_respondent_attributes
@@ -8,9 +12,11 @@ from src.cleaning.transform_structure import (
     individual_questions_to_long_format,
     respondent_attributes_to_long_format,
 )
+from src.cleaning.transform_disaggregations import disaggregations_to_dict
 from src.cleaning.clean_household import clean_household_responses
 from src.cleaning.clean_survey import clean_questions, clean_options, clean_responses
-from src.mapping.questions_shema import normalize_questions_schema
+from src.cleaning.clean_disaggregations import clean_disaggregations
+from src.mapping.normalize_schemas import normalize_questions_schema, normalize_disaggregations_schema
 from src.mapping.derived_variables import add_derived_variables
 from src.io.export_to_csv import (
     export_responses_to_csv,
@@ -20,6 +26,7 @@ from src.io.export_to_csv import (
     export_individual_answers_to_csv,
     export_respondent_attributes_to_csv,
 )
+from src.io.export_disaggregations import dissagregations_to_json
 from src.config.paths import DATA_DIR
 from src.config.survey_data import DEMOGRAPHIC_CODES
 
@@ -65,8 +72,14 @@ def main():
 
     # Disaggregations
     disaggregations_raw = load_disaggregations(year, base_dir)
+    disaggregations_norm = normalize_disaggregations_schema(disaggregations_raw)
+    disaggregations_clean = clean_disaggregations(disaggregations_norm)
+    disaggregations_dict = disaggregations_to_dict(disaggregations_clean)
+
+    dissagregations_to_json(disaggregations_dict)
 
     print("Ingestion completed.")
+
 
 if __name__ == "__main__":
     main()

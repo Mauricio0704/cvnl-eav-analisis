@@ -81,7 +81,7 @@ def build_disaggregation_report(
     disaggregation: str,
     initial_only: bool = True,
 ) -> pd.DataFrame:
-    sql = get_disaggregation_query()
+    sql = get_disaggregation_query(initial_only)
 
     df_long = pd.read_sql_query(
         sql,
@@ -89,23 +89,19 @@ def build_disaggregation_report(
         params={
             "question_id": question_id,
             "dimension": disaggregation,
-        }
+        },
     )
 
     if df_long.empty:
         return df_long
 
-    df_pivot = (
-        df_long
-        .pivot_table(
-            index=["id_respuesta", "Respuesta"],
-            columns="grupo",
-            values="valor",
-            aggfunc="sum",
-            fill_value=0,
-        )
-        .reset_index()
-    )
+    df_pivot = df_long.pivot_table(
+        index=["id_respuesta", "Respuesta"],
+        columns="grupo",
+        values="valor",
+        aggfunc="sum",
+        fill_value=0,
+    ).reset_index()
 
     fixed_cols = ["id_respuesta", "Respuesta"]
     group_cols = [c for c in df_pivot.columns if c not in fixed_cols]

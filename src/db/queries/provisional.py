@@ -45,13 +45,15 @@ def get_income_query() -> str:
     return query
 
 
-def get_disaggregation_query() -> str:
+def get_disaggregation_query(initial_only: bool = True) -> str:
+    weight = "r.factor_cvnl" if initial_only else "1"
+
     query = f"""
         SELECT
             o.option_id        AS id_respuesta,
             o.option_label     AS Respuesta,
             oa.option_label    AS grupo,
-            SUM(r.factor_cvnl) AS valor
+            SUM({weight}) AS valor
         FROM answers a
         JOIN options o
         ON a.question_id = o.question_id
