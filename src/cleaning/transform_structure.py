@@ -5,7 +5,7 @@ from src.config.survey_data import (
     NUMERICAL_VALUE_QUESTIONS,
 )
 from src.utils.dataframe import generate_id
-from src.mapping.extract_respondent_attributes import ATTRIBUTES_MAP
+from src.mapping.extract_respondent_attributes import INDIVIDUAL_ATTRIBUTES_MAP
 
 def remove_emtpy_rows(household_data: pd.DataFrame) -> pd.DataFrame:
     person_mask = household_data.loc[
@@ -107,20 +107,3 @@ def individual_questions_to_long_format(df: pd.DataFrame) -> pd.DataFrame:
     new_df["option_id"] = new_df["answer_id"].where(~is_numeric)
 
     return new_df.drop("answer_id", axis=1)
-
-
-def respondent_attributes_to_long_format(
-    df: pd.DataFrame,
-) -> pd.DataFrame:
-    new_df = pd.melt(
-        df,
-        id_vars=["respondent_id"],
-        value_vars=[col for col in df.columns if col != "respondent_id"],
-        var_name="question_id",
-        value_name="value",
-    )
-    new_df["attribute"] = new_df["question_id"].map(ATTRIBUTES_MAP)
-
-    new_df = new_df[new_df["value"].notna()]
-
-    return new_df

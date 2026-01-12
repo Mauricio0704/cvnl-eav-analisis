@@ -10,7 +10,7 @@ from src.cleaning.transform_structure import (
     household_members_to_long_format,
     household_questions_to_long_format,
     individual_questions_to_long_format,
-    respondent_attributes_to_long_format,
+    #respondent_attributes_to_long_format,
 )
 from src.cleaning.transform_disaggregations import disaggregations_to_dict
 from src.cleaning.clean_household import clean_household_responses
@@ -51,14 +51,12 @@ def main():
 
     # Individual responses
     individual_df = get_individual_responses(survey_df)
-    respondent_attributes_df = get_respondent_attributes(individual_df)
-    respondent_attributes_lf = respondent_attributes_to_long_format(
-        respondent_attributes_df
-    )
-    export_respondent_attributes_to_csv(respondent_attributes_lf)
     individual_with_derived_df = add_derived_variables(individual_df)
     individual_lf = individual_questions_to_long_format(individual_with_derived_df)
     export_individual_answers_to_csv(individual_lf)
+
+    respondent_attributes_df = get_respondent_attributes(individual_lf, household_questions_lf)
+    export_respondent_attributes_to_csv(respondent_attributes_df)
 
     # Questions and options
     questions_raw = load_questions_year(year, base_dir)
