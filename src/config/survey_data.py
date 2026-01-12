@@ -31,14 +31,6 @@ DEMOGRAPHIC_CODES = {
     "factor_cvnl": "factor_cvnl",
 }
 
-
-QUESTIONS_COLUMNS_MAPPING = {
-    "Unnamed: 0": "type",
-    "ENCUESTA ASÍ VAMOS 2025": "q_num",
-    "Unnamed: 2": "q_sub_num",
-    "Unnamed: 3": "q_text",
-}
-
 MISSING_VALUES = [
     "",
     "NA",
