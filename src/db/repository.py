@@ -10,6 +10,11 @@ from src.db.queries.conditionals import (
 )
 from src.db.queries.provisional import (
     get_disaggregation_query,
+    get_trabajo_remunerado_query,
+    get_trabajo_remunerado_by_sex_query,
+    get_tipo_trabajo_query,
+    get_tipo_trabajo_by_sex_query,
+    get_afiliacion_servicio_salud_query
 )
 
 CONDITIONALS_BY_DIMENSION = {
@@ -67,16 +72,35 @@ def build_disaggregation_report(
     disaggregation: str,
     initial_only: bool = True,
 ) -> pd.DataFrame:
-    sql = get_disaggregation_query(initial_only)
-
-    df_long = pd.read_sql_query(
-        sql,
-        conn,
-        params={
+    if disaggregation == "trabajo_remunerado":
+        sql = get_trabajo_remunerado_query(initial_only)
+        params = {"question_id": question_id}
+    elif disaggregation == "trabajo_remunerado_por_hombres":
+        sql = get_trabajo_remunerado_by_sex_query(0, initial_only)
+        params = {"question_id": question_id}
+    elif disaggregation == "trabajo_remunerado_por_mujeres":
+        sql = get_trabajo_remunerado_by_sex_query(1, initial_only)
+        params = {"question_id": question_id}
+    elif disaggregation == "tipo_trabajo":
+        sql = get_tipo_trabajo_query(initial_only)
+        params = {"question_id": question_id}
+    elif disaggregation == "tipo_trabajo_por_hombres":
+        sql = get_tipo_trabajo_by_sex_query(0, initial_only)
+        params = {"question_id": question_id}
+    elif disaggregation == "tipo_trabajo_por_mujeres":
+        sql = get_tipo_trabajo_by_sex_query(1, initial_only)
+        params = {"question_id": question_id}
+    elif disaggregation == "afiliacion_servicio_salud":
+        sql = get_afiliacion_servicio_salud_query(initial_only)
+        params = {"question_id": question_id}
+    else:
+        sql = get_disaggregation_query(initial_only)
+        params = {
             "question_id": question_id,
             "dimension": disaggregation,
-        },
-    )
+        }
+
+    df_long = pd.read_sql_query(sql, conn, params=params)
 
     if df_long.empty:
         return df_long

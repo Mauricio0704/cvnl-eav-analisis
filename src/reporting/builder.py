@@ -61,7 +61,16 @@ def build_question_report(
 
     question_specific_disaggregations = data.get(question_id, [])
 
-    handled_disaggregations = ["ingreso", "tipo_trabajo"]
+    handled_disaggregations = [
+        "ingreso",
+        "tipo_trabajo",
+        "tipo_trabajo_por_hombres",
+        "tipo_trabajo_por_mujeres",
+        "trabajo_remunerado",
+        "trabajo_remunerado_por_hombres",
+        "trabajo_remunerado_por_mujeres",
+        "afiliacion_servicio_salud",
+    ]
     for disaggregation in question_specific_disaggregations:
         if disaggregation["type"] in handled_disaggregations:
 

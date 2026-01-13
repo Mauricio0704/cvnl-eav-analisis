@@ -7,6 +7,8 @@ INDIVIDUAL_ATTRIBUTES_MAP = {
 }
 
 HOUSEHOLD_ATTRIBUTES_MAP = {
+    "cp6": "afiliacion_servicio_salud",
+    "cp8": "nivel_max_estudios",
     "cp9": "nivel_actual_estudios"
 }
 
@@ -43,7 +45,5 @@ def get_respondent_attributes(
     attributes_df = attributes_df[
         ["respondent_id", "question_id", "value", "attribute"]
     ].dropna(subset=["value"])
-
-    print(attributes_df.head())
 
     return attributes_df
