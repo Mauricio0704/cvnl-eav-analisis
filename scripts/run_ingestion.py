@@ -10,7 +10,6 @@ from src.cleaning.transform_structure import (
     household_members_to_long_format,
     household_questions_to_long_format,
     individual_questions_to_long_format,
-    #respondent_attributes_to_long_format,
 )
 from src.cleaning.transform_disaggregations import disaggregations_to_dict
 from src.cleaning.clean_household import clean_household_responses
@@ -74,7 +73,7 @@ def main():
     disaggregations_clean = clean_disaggregations(disaggregations_norm)
     disaggregations_dict = disaggregations_to_dict(disaggregations_clean)
 
-    dissagregations_to_json(disaggregations_dict)
+    # dissagregations_to_json(disaggregations_dict)
 
     print("Ingestion completed.")
 
