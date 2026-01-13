@@ -6,7 +6,6 @@ from src.reporting.extend_tables import add_total_row, get_relative_table
 from src.db.repository import (
     get_questions_by_section,
     get_weighted_question_by_dimension,
-    get_weighted_question_by_income_group,
 )
 from src.utils.excel import (
     ExcelContext,
