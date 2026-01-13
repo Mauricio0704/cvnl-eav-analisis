@@ -14,7 +14,8 @@ from src.db.queries.provisional import (
     get_trabajo_remunerado_by_sex_query,
     get_tipo_trabajo_query,
     get_tipo_trabajo_by_sex_query,
-    get_afiliacion_servicio_salud_query
+    get_afiliacion_servicio_salud_query,
+    get_nivel_max_estudios_query,
 )
 
 CONDITIONALS_BY_DIMENSION = {
@@ -72,33 +73,28 @@ def build_disaggregation_report(
     disaggregation: str,
     initial_only: bool = True,
 ) -> pd.DataFrame:
+
+    params = {"question_id": question_id}
+
     if disaggregation == "trabajo_remunerado":
         sql = get_trabajo_remunerado_query(initial_only)
-        params = {"question_id": question_id}
     elif disaggregation == "trabajo_remunerado_por_hombres":
         sql = get_trabajo_remunerado_by_sex_query(0, initial_only)
-        params = {"question_id": question_id}
     elif disaggregation == "trabajo_remunerado_por_mujeres":
         sql = get_trabajo_remunerado_by_sex_query(1, initial_only)
-        params = {"question_id": question_id}
     elif disaggregation == "tipo_trabajo":
         sql = get_tipo_trabajo_query(initial_only)
-        params = {"question_id": question_id}
     elif disaggregation == "tipo_trabajo_por_hombres":
         sql = get_tipo_trabajo_by_sex_query(0, initial_only)
-        params = {"question_id": question_id}
     elif disaggregation == "tipo_trabajo_por_mujeres":
         sql = get_tipo_trabajo_by_sex_query(1, initial_only)
-        params = {"question_id": question_id}
     elif disaggregation == "afiliacion_servicio_salud":
         sql = get_afiliacion_servicio_salud_query(initial_only)
-        params = {"question_id": question_id}
+    elif disaggregation == "nivel_max_estudios":
+        sql = get_nivel_max_estudios_query(initial_only)
     else:
         sql = get_disaggregation_query(initial_only)
-        params = {
-            "question_id": question_id,
-            "dimension": disaggregation,
-        }
+        params["dimension"] = disaggregation
 
     df_long = pd.read_sql_query(sql, conn, params=params)
 
@@ -115,6 +111,43 @@ def build_disaggregation_report(
 
     fixed_cols = ["id_respuesta", "Respuesta"]
     group_cols = [c for c in df_pivot.columns if c not in fixed_cols]
+
+    if disaggregation == "nivel_max_estudios":
+        desired_order = [
+            "Ninguno",
+            "Preescolar",
+            "Primaria",
+            "Secundaria",
+            "Preparatoria o bachillerato general",
+            "Bachillerato tecnológico",
+            "Estudios técnicos o comerciales con primaria terminada",
+            "Estudios técnicos o comerciales con secundaria terminada",
+            "Estudios técnicos o comerciales con preparatoria terminada",
+            "Normal con primaria o secundaria terminada",
+            "Normal de licenciatura",
+            "Licenciatura",
+            "Especialidad",
+            "Maestría",
+            "Doctorado",
+        ]
+        group_cols = [col for col in desired_order if col in group_cols]
+    elif disaggregation == "ingreso":
+        desired_order = [
+            "Sin ingreso",
+            "No contesta",
+            "Menos de 1 SM ($1 - $8,364)",
+            "1-2 SM ($8,364 - $16,728)",
+            "2-3 SM ($16,728 - $25,092)",
+            "3-4 SM ($25,092 - $33,456)",
+            "4-5 SM ($33,456 - $41,820)",
+            "5-6 SM ($41,820 - $50,184)",
+            "6-7 SM ($50,184 - $58,548)",
+            "7-8 SM ($58,548 - $66,912)",
+            "8-9 SM ($66,912 - $75,276)",
+            "9-10 SM ($75,276 - $83,640)",
+            "10 o más SM ($83,640 o más)",
+        ]
+        group_cols = [col for col in desired_order if col in group_cols]
 
     df_pivot = df_pivot[fixed_cols + group_cols]
 

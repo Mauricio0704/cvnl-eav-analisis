@@ -2,7 +2,12 @@ import pandas as pd
 import json
 
 from src.config.paths import OUTPUT_DIR, PROCESSED_DATA_DIR
-from src.reporting.extend_tables import add_total_row, get_relative_table
+from src.config.survey_data import NUMERICAL_VALUE_QUESTIONS
+from src.reporting.extend_tables import (
+    add_total_row,
+    get_relative_table,
+    add_weighted_average_row,
+)
 from src.db.repository import (
     get_questions_by_section,
     get_weighted_question_by_dimension,
@@ -50,6 +55,14 @@ def build_question_report(
         )
     )
 
+    if question_id in NUMERICAL_VALUE_QUESTIONS:
+        general_df = add_weighted_average_row(general_df)
+        city_df = add_weighted_average_row(city_df)
+        age_df = add_weighted_average_row(age_df)
+        sex_df = add_weighted_average_row(sex_df)
+        men_per_city_df = add_weighted_average_row(men_per_city_df)
+        women_per_city_df = add_weighted_average_row(women_per_city_df)
+
     titles_with_dfs = [
         ("Generales", general_df),
         ("Respuesta por unidad geográfica", city_df),
@@ -70,6 +83,7 @@ def build_question_report(
         "trabajo_remunerado_por_hombres",
         "trabajo_remunerado_por_mujeres",
         "afiliacion_servicio_salud",
+        "nivel_max_estudios",
     ]
     for disaggregation in question_specific_disaggregations:
         if disaggregation["type"] in handled_disaggregations:
@@ -82,6 +96,9 @@ def build_question_report(
                     initial_only,
                 )
             )
+
+            if question_id in NUMERICAL_VALUE_QUESTIONS:
+                df = add_weighted_average_row(df)
 
             titles_with_dfs.append((f"Respuesta por {disaggregation["type"]}", df))
 
