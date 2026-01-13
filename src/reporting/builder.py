@@ -1,11 +1,16 @@
 import pandas as pd
+import json
 
-from src.config.paths import OUTPUT_DIR
-from src.reporting.extend_tables import add_total_row, get_relative_table
+from src.config.paths import OUTPUT_DIR, PROCESSED_DATA_DIR
+from src.config.survey_data import NUMERICAL_VALUE_QUESTIONS
+from src.reporting.extend_tables import (
+    add_total_row,
+    get_relative_table,
+    add_weighted_average_row,
+)
 from src.db.repository import (
     get_questions_by_section,
     get_weighted_question_by_dimension,
-    get_weighted_question_by_income_group,
 )
 from src.utils.excel import (
     ExcelContext,
@@ -13,10 +18,19 @@ from src.utils.excel import (
     write_table_to_excel,
     get_writer_config,
 )
+from src.db.repository import build_disaggregation_report
+
+with open(PROCESSED_DATA_DIR / "disaggregations.json", "r") as file:
+    data = json.load(file)
 
 
 def build_question_report(
-    conn, question_id: str, question_text: str, sheet_name: str, section: str, initial_only: bool = True,
+    conn,
+    question_id: str,
+    question_text: str,
+    sheet_name: str,
+    section: str,
+    initial_only: bool = True,
 ) -> None:
     general_df = add_total_row(
         get_weighted_question_by_dimension(conn, question_id, "general", initial_only)
@@ -41,6 +55,14 @@ def build_question_report(
         )
     )
 
+    if question_id in NUMERICAL_VALUE_QUESTIONS:
+        general_df = add_weighted_average_row(general_df)
+        city_df = add_weighted_average_row(city_df)
+        age_df = add_weighted_average_row(age_df)
+        sex_df = add_weighted_average_row(sex_df)
+        men_per_city_df = add_weighted_average_row(men_per_city_df)
+        women_per_city_df = add_weighted_average_row(women_per_city_df)
+
     titles_with_dfs = [
         ("Generales", general_df),
         ("Respuesta por unidad geográfica", city_df),
@@ -50,11 +72,35 @@ def build_question_report(
         ("Respuesta por edad", age_df),
     ]
 
-    if section == "economia":
-        income_df = add_total_row(
-            get_weighted_question_by_income_group(conn, question_id)
-        )
-        titles_with_dfs.append(("Respuesta por grupo de ingreso", income_df))
+    question_specific_disaggregations = data.get(question_id, [])
+
+    handled_disaggregations = [
+        "ingreso",
+        "tipo_trabajo",
+        "tipo_trabajo_por_hombres",
+        "tipo_trabajo_por_mujeres",
+        "trabajo_remunerado",
+        "trabajo_remunerado_por_hombres",
+        "trabajo_remunerado_por_mujeres",
+        "afiliacion_servicio_salud",
+        "nivel_max_estudios",
+    ]
+    for disaggregation in question_specific_disaggregations:
+        if disaggregation["type"] in handled_disaggregations:
+
+            df = add_total_row(
+                build_disaggregation_report(
+                    conn,
+                    question_id,
+                    disaggregation["type"],
+                    initial_only,
+                )
+            )
+
+            if question_id in NUMERICAL_VALUE_QUESTIONS:
+                df = add_weighted_average_row(df)
+
+            titles_with_dfs.append((f"Respuesta por {disaggregation["type"]}", df))
 
     output_path = OUTPUT_DIR / f"{section}.xlsx"
     config = get_writer_config(output_path)

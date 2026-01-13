@@ -1,45 +1,251 @@
-def get_income_query() -> str:
-    query = """
-        WITH income AS (
-            SELECT
-                respondent_id,
-                option_id AS income
-            FROM answers
-            WHERE question_id = 'p167'
-        )
+def get_disaggregation_query(initial_only: bool = True) -> str:
+    weight = "r.factor_cvnl" if initial_only else "1"
+
+    query = f"""
         SELECT
-            o.option_id AS id_respuesta,
-            o.option_label AS Respuesta,
-
-            SUM(CASE WHEN i.income = 1  THEN r.factor_cvnl ELSE 0 END) AS 'Sin ingreso',
-            SUM(CASE WHEN i.income = 2  THEN r.factor_cvnl ELSE 0 END) AS 'Menos de 1 SM',
-            SUM(CASE WHEN i.income = 3  THEN r.factor_cvnl ELSE 0 END) AS '1-2 SM',
-            SUM(CASE WHEN i.income = 4  THEN r.factor_cvnl ELSE 0 END) AS '2-3 SM',
-            SUM(CASE WHEN i.income = 5  THEN r.factor_cvnl ELSE 0 END) AS '3-4 SM',
-            SUM(CASE WHEN i.income = 6  THEN r.factor_cvnl ELSE 0 END) AS '4-5 SM',
-            SUM(CASE WHEN i.income = 7  THEN r.factor_cvnl ELSE 0 END) AS '5-6 SM',
-            SUM(CASE WHEN i.income = 8  THEN r.factor_cvnl ELSE 0 END) AS '6-7 SM',
-            SUM(CASE WHEN i.income = 9  THEN r.factor_cvnl ELSE 0 END) AS '7-8 SM',
-            SUM(CASE WHEN i.income = 10 THEN r.factor_cvnl ELSE 0 END) AS '8-9 SM',
-            SUM(CASE WHEN i.income = 11 THEN r.factor_cvnl ELSE 0 END) AS '9-10 SM',
-            SUM(CASE WHEN i.income = 12 THEN r.factor_cvnl ELSE 0 END) AS '10 o más SM',
-            SUM(CASE WHEN i.income = 9999 THEN r.factor_cvnl ELSE 0 END) AS 'No contesta'
-
+            COALESCE(o.option_id, a.value)        AS id_respuesta,
+            COALESCE(o.option_label, CAST(a.value AS TEXT))     AS Respuesta,
+            oa.option_label    AS grupo,
+            SUM({weight}) AS valor
         FROM answers a
+        LEFT JOIN options o
+        ON a.question_id = o.question_id
+        AND a.option_id   = o.option_id
+
+        LEFT JOIN respondent_attributes ra
+        ON a.respondent_id = ra.respondent_id
+        AND ra.attribute    = :dimension
+
+        LEFT JOIN options oa
+        ON ra.question_id = oa.question_id
+        AND ra.value       = oa.option_id
+
         JOIN responses r
         ON a.respondent_id = r.respondent_id
 
-        LEFT JOIN income i
-        ON i.respondent_id = a.respondent_id
+        WHERE a.question_id = :question_id
 
-        JOIN options o
+        GROUP BY
+            COALESCE(o.option_id, a.value),
+            COALESCE(o.option_label, CAST(a.value AS TEXT)),
+            oa.option_label
+    """
+    return query
+
+
+def get_trabajo_remunerado_query(initial_only: bool = True) -> str:
+    """Get paid work data (tipo_trabajo values 1, 4, 6) for male respondents."""
+
+    weight = "r.factor_cvnl" if initial_only else "1"
+
+    query = f"""
+        SELECT
+            COALESCE(o.option_id, a.value)        AS id_respuesta,
+            COALESCE(o.option_label, CAST(a.value AS TEXT))     AS Respuesta,
+            oa.option_label    AS grupo,
+            SUM({weight}) AS valor
+        FROM answers a
+        LEFT JOIN options o
         ON a.question_id = o.question_id
-        AND a.option_id = o.option_id
+        AND a.option_id   = o.option_id
 
-        WHERE r.is_initial_respondent = 1
-        AND a.question_id = ?
+        LEFT JOIN respondent_attributes ra
+        ON a.respondent_id = ra.respondent_id
+        AND ra.attribute    = 'tipo_trabajo'
 
-        GROUP BY o.option_id, o.option_label
-        ORDER BY o.option_id;
+        LEFT JOIN options oa
+        ON ra.question_id = oa.question_id
+        AND ra.value       = oa.option_id
+        AND ra.value IN (1, 4, 6)
+
+        JOIN responses r
+        ON a.respondent_id = r.respondent_id
+
+        WHERE a.question_id = :question_id
+
+        GROUP BY
+            COALESCE(o.option_id, a.value),
+            COALESCE(o.option_label, CAST(a.value AS TEXT)),
+            oa.option_label
+    """
+
+    return query
+
+
+def get_trabajo_remunerado_by_sex_query(
+    sex_id: int = 0, initial_only: bool = True
+) -> str:
+    weight = "r.factor_cvnl" if initial_only else "1"
+
+    query = f"""
+        SELECT
+            COALESCE(o.option_id, a.value)        AS id_respuesta,
+            COALESCE(o.option_label, CAST(a.value AS TEXT))     AS Respuesta,
+            oa.option_label    AS grupo,
+            SUM({weight}) AS valor
+        FROM answers a
+        LEFT JOIN options o
+        ON a.question_id = o.question_id
+        AND a.option_id   = o.option_id
+
+        LEFT JOIN respondent_attributes ra
+        ON a.respondent_id = ra.respondent_id
+        AND ra.attribute    = 'tipo_trabajo'
+
+        LEFT JOIN options oa
+        ON ra.question_id = oa.question_id
+        AND ra.value       = oa.option_id
+        AND ra.value IN (1, 4, 6)
+
+        JOIN responses r
+        ON a.respondent_id = r.respondent_id
+
+        WHERE a.question_id = :question_id
+        AND r.sexo = {sex_id}
+
+        GROUP BY
+            COALESCE(o.option_id, a.value),
+            COALESCE(o.option_label, CAST(a.value AS TEXT)),
+            oa.option_label
+    """
+    return query
+
+
+def get_tipo_trabajo_query(initial_only: bool = True) -> str:
+    """Categorize respondents by trabajo remunerado (1,4,6) vs trabajo no remunerado (5)."""
+
+    weight = "r.factor_cvnl" if initial_only else "1"
+
+    query = f"""
+        SELECT
+            COALESCE(o.option_id, a.value)        AS id_respuesta,
+            COALESCE(o.option_label, CAST(a.value AS TEXT))     AS Respuesta,
+            CASE
+                WHEN ra.value IN (1, 4, 6) THEN 'trabajo remunerado'
+                WHEN ra.value = 5 THEN 'trabajo no remunerado'
+                ELSE 'otro'
+            END AS grupo,
+            SUM({weight}) AS valor
+        FROM answers a
+        LEFT JOIN options o
+        ON a.question_id = o.question_id
+        AND a.option_id   = o.option_id
+
+        LEFT JOIN respondent_attributes ra
+        ON a.respondent_id = ra.respondent_id
+        AND ra.attribute    = 'tipo_trabajo'
+
+        JOIN responses r
+        ON a.respondent_id = r.respondent_id
+
+        WHERE a.question_id = :question_id
+
+        GROUP BY
+            COALESCE(o.option_id, a.value),
+            COALESCE(o.option_label, CAST(a.value AS TEXT)),
+            grupo
+    """
+    return query
+
+
+def get_tipo_trabajo_by_sex_query(sex_id: int = 0, initial_only: bool = True) -> str:
+    weight = "r.factor_cvnl" if initial_only else "1"
+
+    query = f"""
+        SELECT
+            COALESCE(o.option_id, a.value)        AS id_respuesta,
+            COALESCE(o.option_label, CAST(a.value AS TEXT))     AS Respuesta,
+            CASE
+                WHEN ra.value IN (1, 4, 6) THEN 'trabajo remunerado'
+                WHEN ra.value = 5 THEN 'trabajo no remunerado'
+                ELSE 'otro'
+            END AS grupo,
+            SUM({weight}) AS valor
+        FROM answers a
+        LEFT JOIN options o
+        ON a.question_id = o.question_id
+        AND a.option_id   = o.option_id
+        LEFT JOIN respondent_attributes ra
+        ON a.respondent_id = ra.respondent_id
+        AND ra.attribute    = 'tipo_trabajo'
+        JOIN responses r
+        ON a.respondent_id = r.respondent_id
+        WHERE a.question_id = :question_id
+        AND r.sexo = {sex_id}
+        GROUP BY
+            COALESCE(o.option_id, a.value),
+            COALESCE(o.option_label, CAST(a.value AS TEXT)),
+            grupo
+    """
+
+    return query
+
+
+def get_afiliacion_servicio_salud_query(initial_only: bool = True) -> str:
+    weight = "r.factor_cvnl" if initial_only else "1"
+
+    query = f"""
+        SELECT
+            COALESCE(o.option_id, a.value)        AS id_respuesta,
+            COALESCE(o.option_label, CAST(a.value AS TEXT))     AS Respuesta,
+            oa.option_label    AS grupo,
+            SUM({weight}) AS valor
+        FROM answers a
+        LEFT JOIN options o
+        ON a.question_id = o.question_id
+        AND a.option_id   = o.option_id
+
+        LEFT JOIN respondent_attributes ra
+        ON a.respondent_id = ra.respondent_id
+        AND ra.attribute    = 'afiliacion_servicio_salud'
+
+        LEFT JOIN options oa
+        ON ra.question_id = oa.question_id
+        AND ra.value       = oa.option_id
+
+        JOIN responses r
+        ON a.respondent_id = r.respondent_id
+
+        WHERE a.question_id = :question_id
+
+        GROUP BY
+            COALESCE(o.option_id, a.value),
+            COALESCE(o.option_label, CAST(a.value AS TEXT)),
+            oa.option_label
+    """
+    return query
+
+
+def get_nivel_max_estudios_query(initial_only: bool = True) -> str:
+    weight = "r.factor_cvnl" if initial_only else "1"
+
+    query = f"""
+        SELECT
+            COALESCE(o.option_id, a.value)        AS id_respuesta,
+            COALESCE(o.option_label, CAST(a.value AS TEXT))     AS Respuesta,
+            oa.option_label    AS grupo,
+            SUM({weight}) AS valor
+        FROM answers a
+        LEFT JOIN options o
+        ON a.question_id = o.question_id
+        AND a.option_id   = o.option_id 
+
+        LEFT JOIN respondent_attributes ra
+        ON a.respondent_id = ra.respondent_id
+        AND ra.attribute    = 'nivel_max_estudios'
+
+        LEFT JOIN options oa
+        ON ra.question_id = oa.question_id
+        AND ra.value       = oa.option_id
+
+        JOIN responses r
+        ON a.respondent_id = r.respondent_id
+
+        WHERE a.question_id = :question_id
+
+        GROUP BY
+            COALESCE(o.option_id, a.value),
+            COALESCE(o.option_label, CAST(a.value AS TEXT)),
+            oa.option_label
     """
     return query

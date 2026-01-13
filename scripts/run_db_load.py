@@ -14,7 +14,7 @@ def main():
         create_schema(conn)
 
     print("Resetting tables")
-    clear_all_tables(conn, ["answers", "options", "questions", "responses"])
+    clear_all_tables(conn, ["answers", "options", "questions", "responses", "respondent_attributes"])
 
     print("Loading CSVs...")
 

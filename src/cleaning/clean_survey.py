@@ -1,8 +1,8 @@
 import pandas as pd
 
-from ..utils.dataframe import generate_id
-from ..config.survey_data import QUESTION_SECTIONS
-from ..config.survey_data import AGE_BINS, AGE_LABELS
+from src.utils.dataframe import generate_id
+from src.config.survey_data import QUESTION_SECTIONS
+from src.config.survey_data import AGE_BINS, AGE_LABELS
 
 
 def generate_questions_ids(df: pd.DataFrame) -> pd.DataFrame:
