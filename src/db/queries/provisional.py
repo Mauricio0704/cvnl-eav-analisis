@@ -249,3 +249,72 @@ def get_nivel_max_estudios_query(initial_only: bool = True) -> str:
             oa.option_label
     """
     return query
+
+
+def get_servicio_salud_donde_se_atendio_query(initial_only: bool = True) -> str:
+    weight = "r.factor_cvnl" if initial_only else "1"
+
+    query = f"""
+        SELECT
+            COALESCE(o.option_id, a.value)        AS id_respuesta,
+            COALESCE(o.option_label, CAST(a.value AS TEXT))     AS Respuesta,
+            oa.option_label    AS grupo,
+            SUM({weight}) AS valor
+        FROM answers a
+        LEFT JOIN options o
+        ON a.question_id = o.question_id
+        AND a.option_id   = o.option_id
+
+        LEFT JOIN respondent_attributes ra
+        ON a.respondent_id = ra.respondent_id
+        AND ra.attribute    = 'servicio_salud_donde_se_atendio'
+
+        LEFT JOIN options oa
+        ON ra.question_id = oa.question_id
+        AND ra.value       = oa.option_id
+
+        JOIN responses r
+        ON a.respondent_id = r.respondent_id
+
+        WHERE a.question_id = :question_id
+
+        GROUP BY
+            COALESCE(o.option_id, a.value),
+            COALESCE(o.option_label, CAST(a.value AS TEXT)),
+            oa.option_label
+    """
+    return query
+
+
+def get_tipo_servicio_salud_donde_se_atendio_query(initial_only: bool = True) -> str:
+    weight = "r.factor_cvnl" if initial_only else "1"
+
+    query = f"""
+        SELECT
+            COALESCE(o.option_id, a.value)        AS id_respuesta,
+            COALESCE(o.option_label, CAST(a.value AS TEXT))     AS Respuesta,
+            CASE
+                WHEN ra.value IN (2, 3) THEN 'servicios_privados'
+                WHEN ra.value IN (1, 4, 5, 6, 7, 8, 9, 10, 11) THEN 'servicios_publicos'
+            END AS grupo,
+            SUM({weight}) AS valor
+        FROM answers a
+        LEFT JOIN options o
+        ON a.question_id = o.question_id
+        AND a.option_id   = o.option_id
+
+        LEFT JOIN respondent_attributes ra
+        ON a.respondent_id = ra.respondent_id
+        AND ra.attribute    = 'servicio_salud_donde_se_atendio'
+
+        JOIN responses r
+        ON a.respondent_id = r.respondent_id
+
+        WHERE a.question_id = :question_id
+
+        GROUP BY
+            COALESCE(o.option_id, a.value),
+            COALESCE(o.option_label, CAST(a.value AS TEXT)),
+            grupo
+    """
+    return query

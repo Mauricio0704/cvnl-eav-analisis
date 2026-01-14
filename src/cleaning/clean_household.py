@@ -1,6 +1,6 @@
 import pandas as pd
 
-from ..config.survey_data import MISSING_VALUES, HOUSEHOLD_NUMERIC_QUESTIONS
+from src.config.survey_data import HOUSEHOLD_NUMERIC_QUESTIONS
 
 
 def clean_sex(df: pd.DataFrame, q_id: str) -> pd.DataFrame:
@@ -13,8 +13,6 @@ def clean_sex(df: pd.DataFrame, q_id: str) -> pd.DataFrame:
 
 def clean_household_responses(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
-
-    df = df.replace(MISSING_VALUES, pd.NA)
 
     if "nombre" in df.columns:
         df["nombre"] = df["nombre"].astype(str).str.strip().str.title()

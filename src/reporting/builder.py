@@ -84,6 +84,8 @@ def build_question_report(
         "trabajo_remunerado_por_mujeres",
         "afiliacion_servicio_salud",
         "nivel_max_estudios",
+        "servicio_salud_donde_se_atendio",
+        "tipo_servicio_salud_donde_se_atendio",
     ]
     for disaggregation in question_specific_disaggregations:
         if disaggregation["type"] in handled_disaggregations:
