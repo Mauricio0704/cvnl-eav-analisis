@@ -234,7 +234,7 @@ def victima_tp(df):
     new_df["VICTIMA_TP"] = np.where(
         usa_tp,
         fue_victima.astype(int),
-        pd.NA
+        np.nan
     )
 
     return new_df

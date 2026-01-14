@@ -16,6 +16,8 @@ from src.db.queries.provisional import (
     get_tipo_trabajo_by_sex_query,
     get_afiliacion_servicio_salud_query,
     get_nivel_max_estudios_query,
+    get_servicio_salud_donde_se_atendio_query,
+    get_tipo_servicio_salud_donde_se_atendio_query,
 )
 
 CONDITIONALS_BY_DIMENSION = {
@@ -92,6 +94,10 @@ def build_disaggregation_report(
         sql = get_afiliacion_servicio_salud_query(initial_only)
     elif disaggregation == "nivel_max_estudios":
         sql = get_nivel_max_estudios_query(initial_only)
+    elif disaggregation == "servicio_salud_donde_se_atendio":
+        sql = get_servicio_salud_donde_se_atendio_query(initial_only)
+    elif disaggregation == "tipo_servicio_salud_donde_se_atendio":
+        sql = get_tipo_servicio_salud_donde_se_atendio_query(initial_only)
     else:
         sql = get_disaggregation_query(initial_only)
         params["dimension"] = disaggregation

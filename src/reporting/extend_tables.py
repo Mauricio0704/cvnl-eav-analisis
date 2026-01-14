@@ -17,22 +17,27 @@ def add_total_row(df: pd.DataFrame) -> pd.DataFrame:
 def add_weighted_average_row(df: pd.DataFrame) -> pd.DataFrame:
     if df.empty:
         return df
-
-    weighted_avg = {}
+    
+    valid_df = df[~df[df.columns[0]].isin(["Total", "Promedio"])]
+    weighted_averages = {}
     for col in df.columns[2:]:
-        total = df[col].iloc[-1]
-        if total == 0:
-            weighted_avg[col] = 0
+        weights = valid_df[col]
+        values = valid_df["Respuesta"]
+
+        mask = ~values.isin([7777, 8888, 9999]) & ~weights.isin([7777, 8888, 9999])
+        filtered_values = pd.to_numeric(values[mask], errors="coerce")
+        filtered_weights = pd.to_numeric(weights[mask], errors="coerce")
+
+        if filtered_weights.sum() == 0:
+            weighted_avg = 0
         else:
-            df["Respuesta"] = pd.to_numeric(df["Respuesta"], errors='coerce')
-            df[col] = pd.to_numeric(df[col], errors='coerce')
+            weighted_avg = (filtered_values * filtered_weights).sum() / filtered_weights.sum()
 
-            weighted_avg[col] = (df[col] * df["Respuesta"]).sum() / total
-
-    weighted_avg_row = pd.DataFrame(weighted_avg, index=["Promedio"])
+        weighted_averages[col] = weighted_avg
+    weighted_avg_row = pd.DataFrame(weighted_averages, index=["Promedio"])
     weighted_avg_row.insert(0, df.columns[0], "Promedio")
     weighted_avg_row.insert(1, df.columns[1], "Promedio")
-
+    
     return pd.concat([df, weighted_avg_row], ignore_index=True)
 
 
