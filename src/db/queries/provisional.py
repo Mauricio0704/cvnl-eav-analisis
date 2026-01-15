@@ -1,4 +1,4 @@
-from src.config.survey_data import AMM_ID, ID_TO_CITY_NAME, PERIFERIA_ID
+from src.config.survey_data import AMM_ID, ID_TO_CITY_NAME, PERIFERIA_ID, AGE_BINS, AGE_LABELS
 
 
 def get_disaggregation_query(initial_only: bool = True) -> str:
@@ -589,5 +589,90 @@ def get_municipio_by_sex_query(sex_id: int = 0, initial_only: bool = True) -> st
         GROUP BY
             COALESCE(o.option_id, a.value),
             COALESCE(o.option_label, CAST(a.value AS TEXT))
+    """
+    return query
+
+
+def get_edad_query(initial_only: bool = True) -> str:
+    weight = "r.factor_cvnl" if initial_only else "1"
+
+    age_cases = ''
+    start_index = 0 if not initial_only else 3
+    for i in range(start_index, len(AGE_BINS) - 1):
+        lower = AGE_BINS[i] + (0 if i == 0 else 1)
+        upper = AGE_BINS[i + 1]
+        label = AGE_LABELS[i]
+        age_cases += f"WHEN ra.value BETWEEN {lower} AND {upper} THEN '{label}'\n            "
+
+    query = f"""
+        SELECT
+            COALESCE(o.option_id, a.value) AS id_respuesta,
+            COALESCE(o.option_label, CAST(a.value AS TEXT)) AS Respuesta,
+            CASE
+            {age_cases}
+            END AS grupo,
+            SUM({weight}) AS valor
+        FROM answers a
+        LEFT JOIN options o ON a.question_id = o.question_id AND a.option_id = o.option_id
+        LEFT JOIN respondent_attributes ra ON a.respondent_id = ra.respondent_id AND ra.attribute = 'edad_anos'
+        JOIN responses r ON a.respondent_id = r.respondent_id
+        WHERE a.question_id = :question_id
+          AND ra.value IS NOT NULL
+        GROUP BY
+            COALESCE(o.option_id, a.value),
+            COALESCE(o.option_label, CAST(a.value AS TEXT)),
+            grupo
+    """
+    return query
+
+
+def get_totales_query(initial_only: bool = True) -> str:
+    weight = "r.factor_cvnl" if initial_only else "1"
+
+    query = f"""
+        SELECT
+            COALESCE(o.option_id, a.value) AS id_respuesta,
+            COALESCE(o.option_label, CAST(a.value AS TEXT)) AS Respuesta,
+            'Total' AS grupo,
+            SUM({weight}) AS valor
+        FROM answers a
+        LEFT JOIN options o ON a.question_id = o.question_id AND a.option_id = o.option_id
+        JOIN responses r ON a.respondent_id = r.respondent_id
+        WHERE a.question_id = :question_id
+        GROUP BY
+            COALESCE(o.option_id, a.value),
+            COALESCE(o.option_label, CAST(a.value AS TEXT))
+    """
+    return query
+
+
+def get_ingreso_query(initial_only: bool = True) -> str:
+    weight = "r.factor_cvnl" if initial_only else "1"
+
+    query = f"""
+        SELECT
+            COALESCE(o.option_id, a.value) AS id_respuesta,
+            COALESCE(o.option_label, CAST(a.value AS TEXT)) AS Respuesta,
+            oa.option_label AS grupo,
+            SUM({weight}) AS valor
+        FROM answers a
+        LEFT JOIN options o 
+        ON a.question_id = o.question_id 
+        AND a.option_id = o.option_id
+
+        LEFT JOIN respondent_attributes ra 
+        ON a.respondent_id = ra.respondent_id 
+        AND ra.attribute = 'ingreso'
+
+        LEFT JOIN options oa 
+        ON ra.question_id = oa.question_id 
+        AND ra.value = oa.option_id
+        
+        JOIN responses r ON a.respondent_id = r.respondent_id
+        WHERE a.question_id = :question_id
+        GROUP BY
+            COALESCE(o.option_id, a.value),
+            COALESCE(o.option_label, CAST(a.value AS TEXT)),
+            oa.option_label
     """
     return query

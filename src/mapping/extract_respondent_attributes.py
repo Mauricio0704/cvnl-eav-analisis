@@ -20,7 +20,6 @@ HOUSEHOLD_ATTRIBUTES_MAP = {
 def get_respondent_attributes(
     individual_df: pd.DataFrame, household_df: pd.DataFrame
 ) -> pd.DataFrame:
-    print(household_df["question_id"].unique())
 
     # Individual
     individual_attrs = individual_df[

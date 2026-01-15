@@ -7,10 +7,10 @@ from src.reporting.extend_tables import (
     add_total_row,
     get_relative_table,
     add_weighted_average_row,
+    add_total_column,
 )
 from src.db.repository import (
     get_questions_by_section,
-    get_weighted_question_by_dimension,
 )
 from src.utils.excel import (
     ExcelContext,
@@ -32,45 +32,7 @@ def build_question_report(
     section: str,
     initial_only: bool = True,
 ) -> None:
-    general_df = add_total_row(
-        get_weighted_question_by_dimension(conn, question_id, "general", initial_only)
-    )
-    city_df = add_total_row(
-        get_weighted_question_by_dimension(conn, question_id, "city", initial_only)
-    )
-    age_df = add_total_row(
-        get_weighted_question_by_dimension(conn, question_id, "age_group", initial_only)
-    )
-    sex_df = add_total_row(
-        get_weighted_question_by_dimension(conn, question_id, "sex", initial_only)
-    )
-    men_per_city_df = add_total_row(
-        get_weighted_question_by_dimension(
-            conn, question_id, "men_per_city", initial_only
-        )
-    )
-    women_per_city_df = add_total_row(
-        get_weighted_question_by_dimension(
-            conn, question_id, "women_per_city", initial_only
-        )
-    )
-
-    if question_id in NUMERICAL_VALUE_QUESTIONS:
-        general_df = add_weighted_average_row(general_df)
-        city_df = add_weighted_average_row(city_df)
-        age_df = add_weighted_average_row(age_df)
-        sex_df = add_weighted_average_row(sex_df)
-        men_per_city_df = add_weighted_average_row(men_per_city_df)
-        women_per_city_df = add_weighted_average_row(women_per_city_df)
-
-    titles_with_dfs = [
-        ("Generales", general_df),
-        ("Respuesta por unidad geográfica", city_df),
-        ("Respuesta de hombres por unidad geográfica", men_per_city_df),
-        ("Respuesta de mujeres por unidad geográfica", women_per_city_df),
-        ("Respuesta por sexo", sex_df),
-        ("Respuesta por edad", age_df),
-    ]
+    titles_with_dfs = []
 
     question_specific_disaggregations = data.get(question_id, [])
 
@@ -86,7 +48,17 @@ def build_question_report(
         "nivel_max_estudios",
         "servicio_salud_donde_se_atendio",
         "tipo_servicio_salud_donde_se_atendio",
+        "tipo_escuela",
+        "nivel_actual_estudios_por_escuela_privada",
+        "nivel_actual_estudios_por_escuela_publica",
+        "sexo",
+        "municipio",
+        "municipio_por_hombres",
+        "municipio_por_mujeres",
+        "edad",
+        "totales",
     ]
+
     for disaggregation in question_specific_disaggregations:
         if disaggregation["type"] in handled_disaggregations:
 
@@ -98,6 +70,9 @@ def build_question_report(
                     initial_only,
                 )
             )
+
+            if not disaggregation["type"].startswith("municipio"):
+                df = add_total_column(df)
 
             if question_id in NUMERICAL_VALUE_QUESTIONS:
                 df = add_weighted_average_row(df)
