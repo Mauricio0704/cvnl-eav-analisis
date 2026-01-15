@@ -18,6 +18,11 @@ from src.db.queries.provisional import (
     get_nivel_max_estudios_query,
     get_servicio_salud_donde_se_atendio_query,
     get_tipo_servicio_salud_donde_se_atendio_query,
+    get_tipo_escuela_query,
+    get_nivel_actual_estudios_by_tipo_escuela_query,
+    get_sexo_query,
+    get_municipio_query,
+    get_municipio_by_sex_query,
 )
 
 CONDITIONALS_BY_DIMENSION = {
@@ -98,6 +103,20 @@ def build_disaggregation_report(
         sql = get_servicio_salud_donde_se_atendio_query(initial_only)
     elif disaggregation == "tipo_servicio_salud_donde_se_atendio":
         sql = get_tipo_servicio_salud_donde_se_atendio_query(initial_only)
+    elif disaggregation == "tipo_escuela":
+        sql = get_tipo_escuela_query(initial_only)
+    elif disaggregation == "nivel_actual_estudios_por_escuela_privada":
+        sql = get_nivel_actual_estudios_by_tipo_escuela_query(2, initial_only)
+    elif disaggregation == "nivel_actual_estudios_por_escuela_publica":
+        sql = get_nivel_actual_estudios_by_tipo_escuela_query(1, initial_only)
+    elif disaggregation == "sexo":
+        sql = get_sexo_query(initial_only)
+    elif disaggregation == "municipio":
+        sql = get_municipio_query(initial_only)
+    elif disaggregation == "municipio_por_hombres":
+        sql = get_municipio_by_sex_query(0, initial_only)
+    elif disaggregation == "municipio_por_mujeres":
+        sql = get_municipio_by_sex_query(1, initial_only)
     else:
         sql = get_disaggregation_query(initial_only)
         params["dimension"] = disaggregation

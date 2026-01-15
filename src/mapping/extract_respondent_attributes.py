@@ -7,15 +7,20 @@ INDIVIDUAL_ATTRIBUTES_MAP = {
 }
 
 HOUSEHOLD_ATTRIBUTES_MAP = {
+    "city_id": "municipio",
+    "cp2": "sexo",
+    "cp4_1": "edad_anos",
     "cp6": "afiliacion_servicio_salud",
     "cp8": "nivel_max_estudios",
-    "cp9": "nivel_actual_estudios"
+    "cp9": "nivel_actual_estudios",
+    "cp11": "tipo_escuela",
 }
 
 
 def get_respondent_attributes(
     individual_df: pd.DataFrame, household_df: pd.DataFrame
 ) -> pd.DataFrame:
+    print(household_df["question_id"].unique())
 
     # Individual
     individual_attrs = individual_df[

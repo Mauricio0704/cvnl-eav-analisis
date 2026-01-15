@@ -59,6 +59,7 @@ def household_questions_to_long_format(df: pd.DataFrame) -> pd.DataFrame:
         df,
         id_vars=["respondent_id"],
         value_vars=[
+            "city_id",
             "cp2",
             "cp4_1",
             "cp4_2",
