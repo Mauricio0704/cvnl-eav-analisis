@@ -294,8 +294,8 @@ def get_tipo_servicio_salud_donde_se_atendio_query(initial_only: bool = True) ->
             COALESCE(o.option_id, a.value)        AS id_respuesta,
             COALESCE(o.option_label, CAST(a.value AS TEXT))     AS Respuesta,
             CASE
-                WHEN ra.value IN (2, 3) THEN 'servicios_privados'
-                WHEN ra.value IN (1, 4, 5, 6, 7, 8, 9, 10, 11) THEN 'servicios_publicos'
+                WHEN ra.value IN (2, 3, 7, 8, 9, 10, 12, 13) THEN 'Servicios Privados'
+                WHEN ra.value IN (1, 4, 5, 6, 11) THEN 'Servicios Publicos'
             END AS grupo,
             SUM({weight}) AS valor
         FROM answers a

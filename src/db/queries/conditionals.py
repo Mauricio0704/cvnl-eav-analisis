@@ -81,7 +81,17 @@ def get_women_per_city_conditionals(initial_only: bool = True) -> list[str]:
 
 def get_age_groups_conditionals(initial_only: bool = True) -> list[str]:
     weight = _get_weight(initial_only)
+    extra_conditionals = []
+
+    if not initial_only:
+        extra_conditionals = [
+            f"SUM(CASE WHEN r.edad_anos BETWEEN 0 AND 5 THEN {weight} ELSE 0 END) AS '0-5'",
+            f"SUM(CASE WHEN r.edad_anos BETWEEN 6 AND 12 THEN {weight} ELSE 0 END) AS '6-12'",
+            f"SUM(CASE WHEN r.edad_anos BETWEEN 13 AND 17 THEN {weight} ELSE 0 END) AS '13-17'",
+        ]
+
     return [
+        *extra_conditionals,
         f"SUM(CASE WHEN r.edad_anos BETWEEN 18 AND 24 THEN {weight} ELSE 0 END) AS '18-24'",
         f"SUM(CASE WHEN r.edad_anos BETWEEN 25 AND 34 THEN {weight} ELSE 0 END) AS '25-34'",
         f"SUM(CASE WHEN r.edad_anos BETWEEN 35 AND 44 THEN {weight} ELSE 0 END) AS '35-44'",
