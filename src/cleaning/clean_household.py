@@ -18,8 +18,11 @@ def clean_household_responses(df: pd.DataFrame) -> pd.DataFrame:
         df["nombre"] = df["nombre"].astype(str).str.strip().str.title()
 
     df = clean_sex(df, "cp2")
-    df["cp4_1"] = df["cp4_1"].astype("Int16").fillna(0)
-    df["cp4_2"] = df["cp4_2"].astype("Int16").fillna(0)
+    df["cp4_1"] = df["cp4_1"].astype("Int16")
+    df["cp4_2"] = df["cp4_2"].astype("Int16")
+
+    mask = df["cp4_2"].notna() & (df["cp4_2"] > 0)
+    df.loc[mask, "cp4_1"] = 0
 
     for col in HOUSEHOLD_NUMERIC_QUESTIONS:
         if col in df.columns:

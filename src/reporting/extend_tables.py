@@ -17,7 +17,7 @@ def add_total_row(df: pd.DataFrame) -> pd.DataFrame:
 def add_weighted_average_row(df: pd.DataFrame) -> pd.DataFrame:
     if df.empty:
         return df
-    
+
     valid_df = df[~df[df.columns[0]].isin(["Total", "Promedio"])]
     weighted_averages = {}
     for col in df.columns[2:]:
@@ -31,13 +31,15 @@ def add_weighted_average_row(df: pd.DataFrame) -> pd.DataFrame:
         if filtered_weights.sum() == 0:
             weighted_avg = 0
         else:
-            weighted_avg = (filtered_values * filtered_weights).sum() / filtered_weights.sum()
+            weighted_avg = (
+                filtered_values * filtered_weights
+            ).sum() / filtered_weights.sum()
 
         weighted_averages[col] = weighted_avg
     weighted_avg_row = pd.DataFrame(weighted_averages, index=["Promedio"])
     weighted_avg_row.insert(0, df.columns[0], "Promedio")
     weighted_avg_row.insert(1, df.columns[1], "Promedio")
-    
+
     return pd.concat([df, weighted_avg_row], ignore_index=True)
 
 
@@ -56,3 +58,12 @@ def get_relative_table(df: pd.DataFrame) -> pd.DataFrame:
         else:
             relative_df[col] = (df[col] / total) * 100
     return relative_df
+
+
+def add_total_column(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty:
+        return df
+
+    df = df.copy()
+    df["Total"] = df.iloc[:, 2:].sum(axis=1)
+    return df

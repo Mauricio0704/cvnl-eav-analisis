@@ -1,13 +1,6 @@
 import pandas as pd
 
-from src.db.queries.conditionals import (
-    get_general_conditionals,
-    get_sex_conditionals,
-    get_age_groups_conditionals,
-    get_men_per_city_conditionals,
-    get_women_per_city_conditionals,
-    get_cities_conditionals,
-)
+
 from src.db.queries.provisional import (
     get_disaggregation_query,
     get_trabajo_remunerado_query,
@@ -18,21 +11,20 @@ from src.db.queries.provisional import (
     get_nivel_max_estudios_query,
     get_servicio_salud_donde_se_atendio_query,
     get_tipo_servicio_salud_donde_se_atendio_query,
+    get_tipo_escuela_query,
+    get_nivel_actual_estudios_by_tipo_escuela_query,
+    get_sexo_query,
+    get_municipio_query,
+    get_municipio_by_sex_query,
+    get_edad_query,
+    get_totales_query,
+    get_ingreso_query,
 )
 
-CONDITIONALS_BY_DIMENSION = {
-    "general": get_general_conditionals,
-    "city": get_cities_conditionals,
-    "sex": get_sex_conditionals,
-    "age_group": get_age_groups_conditionals,
-    "men_per_city": get_men_per_city_conditionals,
-    "women_per_city": get_women_per_city_conditionals,
-}
 
 from src.db.queries.questions import (
     get_question_sections_query,
     get_questions_by_section_query,
-    get_weighted_question,
 )
 
 
@@ -48,25 +40,6 @@ def get_questions_by_section(conn, section: str) -> pd.DataFrame:
     df = pd.read_sql_query(query, conn)
 
     return df
-
-
-def get_weighted_question_by_dimension(
-    conn,
-    question_id: str,
-    dimension: str,
-    initial_only: bool = True,
-):
-    try:
-        conditionals = CONDITIONALS_BY_DIMENSION[dimension](initial_only=initial_only)
-    except KeyError:
-        raise ValueError(f"Unknown dimension: {dimension}")
-
-    return get_weighted_question(
-        conn,
-        question_id,
-        conditionals,
-        initial_only=initial_only,
-    )
 
 
 def build_disaggregation_report(
@@ -98,7 +71,28 @@ def build_disaggregation_report(
         sql = get_servicio_salud_donde_se_atendio_query(initial_only)
     elif disaggregation == "tipo_servicio_salud_donde_se_atendio":
         sql = get_tipo_servicio_salud_donde_se_atendio_query(initial_only)
+    elif disaggregation == "tipo_escuela":
+        sql = get_tipo_escuela_query(initial_only)
+    elif disaggregation == "nivel_actual_estudios_por_escuela_privada":
+        sql = get_nivel_actual_estudios_by_tipo_escuela_query(2, initial_only)
+    elif disaggregation == "nivel_actual_estudios_por_escuela_publica":
+        sql = get_nivel_actual_estudios_by_tipo_escuela_query(1, initial_only)
+    elif disaggregation == "sexo":
+        sql = get_sexo_query(initial_only)
+    elif disaggregation == "municipio":
+        sql = get_municipio_query(initial_only)
+    elif disaggregation == "municipio_por_hombres":
+        sql = get_municipio_by_sex_query(0, initial_only)
+    elif disaggregation == "municipio_por_mujeres":
+        sql = get_municipio_by_sex_query(1, initial_only)
+    elif disaggregation == "edad":
+        sql = get_edad_query(initial_only)
+    elif disaggregation == "totales":
+        sql = get_totales_query(initial_only)
+    elif disaggregation == "ingreso":
+        sql = get_ingreso_query(initial_only)
     else:
+        print(disaggregation)
         sql = get_disaggregation_query(initial_only)
         params["dimension"] = disaggregation
 
@@ -152,6 +146,71 @@ def build_disaggregation_report(
             "8-9 SM ($66,912 - $75,276)",
             "9-10 SM ($75,276 - $83,640)",
             "10 o más SM ($83,640 o más)",
+        ]
+        group_cols = [col for col in desired_order if col in group_cols]
+    elif disaggregation == "edad":
+        desired_order = [
+            "0-5",
+            "6-12",
+            "13-17",
+            "18-24",
+            "25-34",
+            "35-44",
+            "45-54",
+            "55-64",
+            "65-74",
+            "75 o mas",
+        ]
+        group_cols = [col for col in desired_order if col in group_cols]
+    elif disaggregation.startswith("municipio"):
+        desired_order = [
+            "Apodaca",
+            "Cadereyta",
+            "Escobedo",
+            "García",
+            "Guadalupe",
+            "Juárez",
+            "Monterrey",
+            "San Nicolás de los Garza",
+            "San Pedro Garza García",
+            "Santa Catarina",
+            "Santiago",
+            "AMM",
+            "Periferia",
+            "Resto NL",
+            "Nuevo León",
+        ]
+        group_cols = [col for col in desired_order if col in group_cols]
+    elif disaggregation.startswith("nivel_actual_estudios"):
+        desired_order = [
+            "Ninguno",
+            "Preescolar",
+            "Primaria",
+            "Secundaria",
+            "Preparatoria o bachillerato general",
+            "Bachillerato tecnológico",
+            "Estudios técnicos o comerciales con primaria terminada",
+            "Estudios técnicos o comerciales con secundaria terminada",
+            "Estudios técnicos o comerciales con preparatoria terminada",
+            "Normal con primaria o secundaria terminada",
+            "Normal de licenciatura",
+            "Licenciatura",
+            "Especialidad",
+            "Maestría",
+            "Doctorado",
+        ]
+        group_cols = [col for col in desired_order if col in group_cols]
+    elif disaggregation == "tipo_escuela":
+        desired_order = [
+            "Pública",
+            "Privada",
+            "Otra",
+        ]
+        group_cols = [col for col in desired_order if col in group_cols]
+    elif disaggregation == "sexo":
+        desired_order = [
+            "Hombre",
+            "Mujer",
         ]
         group_cols = [col for col in desired_order if col in group_cols]
 
