@@ -159,7 +159,7 @@ def build_disaggregation_report(
             "45-54",
             "55-64",
             "65-74",
-            "75 o mas",
+            "75 o más",
         ]
         group_cols = [col for col in desired_order if col in group_cols]
     elif disaggregation.startswith("municipio"):
@@ -204,7 +204,7 @@ def build_disaggregation_report(
         desired_order = [
             "Pública",
             "Privada",
-            "Otra",
+            "Otro tipo",
         ]
         group_cols = [col for col in desired_order if col in group_cols]
     elif disaggregation == "sexo":

@@ -70,6 +70,7 @@ def household_questions_to_long_format(df: pd.DataFrame) -> pd.DataFrame:
             "cp10_a",
             "cp10_b",
             "cp11",
+            "cp12",
             "cp13",
             "cp14",
             "cp15_1",
