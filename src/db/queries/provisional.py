@@ -1,41 +1,6 @@
 from src.config.survey_data import AMM_ID, ID_TO_CITY_NAME, PERIFERIA_ID, AGE_BINS, AGE_LABELS
 
 
-def get_disaggregation_query(initial_only: bool = True) -> str:
-    weight = "r.factor_cvnl" if initial_only else "1"
-
-    query = f"""
-        SELECT
-            COALESCE(o.option_id, a.value)        AS id_respuesta,
-            COALESCE(o.option_label, CAST(a.value AS TEXT))     AS Respuesta,
-            oa.option_label    AS grupo,
-            SUM({weight}) AS valor
-        FROM answers a
-        LEFT JOIN options o
-        ON a.question_id = o.question_id
-        AND a.option_id   = o.option_id
-
-        LEFT JOIN respondent_attributes ra
-        ON a.respondent_id = ra.respondent_id
-        AND ra.attribute    = :dimension
-
-        LEFT JOIN options oa
-        ON ra.question_id = oa.question_id
-        AND ra.value       = oa.option_id
-
-        JOIN responses r
-        ON a.respondent_id = r.respondent_id
-
-        WHERE a.question_id = :question_id
-
-        GROUP BY
-            COALESCE(o.option_id, a.value),
-            COALESCE(o.option_label, CAST(a.value AS TEXT)),
-            oa.option_label
-    """
-    return query
-
-
 def get_trabajo_remunerado_query(initial_only: bool = True) -> str:
     """Get paid work data (tipo_trabajo values 1, 4, 6) for male respondents."""
 
@@ -340,6 +305,41 @@ def get_tipo_escuela_query(initial_only: bool = True) -> str:
         LEFT JOIN respondent_attributes ra
         ON a.respondent_id = ra.respondent_id
         AND ra.attribute    = 'tipo_escuela'
+
+        LEFT JOIN options oa
+        ON ra.question_id = oa.question_id
+        AND ra.value       = oa.option_id
+
+        JOIN responses r
+        ON a.respondent_id = r.respondent_id
+
+        WHERE a.question_id = :question_id
+
+        GROUP BY
+            COALESCE(o.option_id, a.value),
+            COALESCE(o.option_label, CAST(a.value AS TEXT)),
+            oa.option_label
+    """
+    return query
+
+
+def get_nivel_actual_estudios_query(initial_only: bool = True) -> str:
+    weight = "r.factor_cvnl" if initial_only else "1"
+
+    query = f"""
+        SELECT
+            COALESCE(o.option_id, a.value)        AS id_respuesta,
+            COALESCE(o.option_label, CAST(a.value AS TEXT))     AS Respuesta,
+            oa.option_label    AS grupo,
+            SUM({weight}) AS valor
+        FROM answers a
+        LEFT JOIN options o
+        ON a.question_id = o.question_id
+        AND a.option_id   = o.option_id
+
+        LEFT JOIN respondent_attributes ra
+        ON a.respondent_id = ra.respondent_id
+        AND ra.attribute    = 'nivel_actual_estudios'
 
         LEFT JOIN options oa
         ON ra.question_id = oa.question_id
@@ -676,3 +676,28 @@ def get_ingreso_query(initial_only: bool = True) -> str:
             oa.option_label
     """
     return query
+
+
+DISAGGREGATIONS_MAP = {
+    "trabajo_remunerado": get_trabajo_remunerado_query,
+    "trabajo_remunerado_por_hombres": lambda initial_only: get_trabajo_remunerado_by_sex_query(0, initial_only),
+    "trabajo_remunerado_por_mujeres": lambda initial_only: get_trabajo_remunerado_by_sex_query(1, initial_only),
+    "tipo_trabajo": get_tipo_trabajo_query,
+    "tipo_trabajo_por_hombres": lambda initial_only: get_tipo_trabajo_by_sex_query(0, initial_only),
+    "tipo_trabajo_por_mujeres": lambda initial_only: get_tipo_trabajo_by_sex_query(1, initial_only),
+    "afiliacion_servicio_salud": get_afiliacion_servicio_salud_query,
+    "nivel_max_estudios": get_nivel_max_estudios_query,
+    "servicio_salud_donde_se_atendio": get_servicio_salud_donde_se_atendio_query,
+    "tipo_servicio_salud_donde_se_atendio": get_tipo_servicio_salud_donde_se_atendio_query,
+    "tipo_escuela": get_tipo_escuela_query,
+    "nivel_actual_estudios": get_nivel_actual_estudios_query,
+    "nivel_actual_estudios_por_escuela_privada": lambda initial_only: get_nivel_actual_estudios_by_tipo_escuela_query(2, initial_only),
+    "nivel_actual_estudios_por_escuela_publica": lambda initial_only: get_nivel_actual_estudios_by_tipo_escuela_query(1, initial_only),
+    "sexo": get_sexo_query,
+    "municipio": get_municipio_query,
+    "municipio_por_hombres": lambda initial_only: get_municipio_by_sex_query(0, initial_only),
+    "municipio_por_mujeres": lambda initial_only: get_municipio_by_sex_query(1, initial_only),
+    "edad": get_edad_query,
+    "totales": get_totales_query,
+    "ingreso": get_ingreso_query,
+}

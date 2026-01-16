@@ -1,27 +1,6 @@
 import pandas as pd
 
-
-from src.db.queries.provisional import (
-    get_disaggregation_query,
-    get_trabajo_remunerado_query,
-    get_trabajo_remunerado_by_sex_query,
-    get_tipo_trabajo_query,
-    get_tipo_trabajo_by_sex_query,
-    get_afiliacion_servicio_salud_query,
-    get_nivel_max_estudios_query,
-    get_servicio_salud_donde_se_atendio_query,
-    get_tipo_servicio_salud_donde_se_atendio_query,
-    get_tipo_escuela_query,
-    get_nivel_actual_estudios_by_tipo_escuela_query,
-    get_sexo_query,
-    get_municipio_query,
-    get_municipio_by_sex_query,
-    get_edad_query,
-    get_totales_query,
-    get_ingreso_query,
-)
-
-
+from src.db.queries.provisional import DISAGGREGATIONS_MAP
 from src.db.queries.questions import (
     get_question_sections_query,
     get_questions_by_section_query,
@@ -49,53 +28,14 @@ def build_disaggregation_report(
     initial_only: bool = True,
 ) -> pd.DataFrame:
 
+    sql_function = DISAGGREGATIONS_MAP.get(disaggregation)
+
+    if not sql_function:
+        raise ValueError(f"Disaggregation '{disaggregation}' is not supported.")
+
+    sql = sql_function(initial_only)
+
     params = {"question_id": question_id}
-
-    if disaggregation == "trabajo_remunerado":
-        sql = get_trabajo_remunerado_query(initial_only)
-    elif disaggregation == "trabajo_remunerado_por_hombres":
-        sql = get_trabajo_remunerado_by_sex_query(0, initial_only)
-    elif disaggregation == "trabajo_remunerado_por_mujeres":
-        sql = get_trabajo_remunerado_by_sex_query(1, initial_only)
-    elif disaggregation == "tipo_trabajo":
-        sql = get_tipo_trabajo_query(initial_only)
-    elif disaggregation == "tipo_trabajo_por_hombres":
-        sql = get_tipo_trabajo_by_sex_query(0, initial_only)
-    elif disaggregation == "tipo_trabajo_por_mujeres":
-        sql = get_tipo_trabajo_by_sex_query(1, initial_only)
-    elif disaggregation == "afiliacion_servicio_salud":
-        sql = get_afiliacion_servicio_salud_query(initial_only)
-    elif disaggregation == "nivel_max_estudios":
-        sql = get_nivel_max_estudios_query(initial_only)
-    elif disaggregation == "servicio_salud_donde_se_atendio":
-        sql = get_servicio_salud_donde_se_atendio_query(initial_only)
-    elif disaggregation == "tipo_servicio_salud_donde_se_atendio":
-        sql = get_tipo_servicio_salud_donde_se_atendio_query(initial_only)
-    elif disaggregation == "tipo_escuela":
-        sql = get_tipo_escuela_query(initial_only)
-    elif disaggregation == "nivel_actual_estudios_por_escuela_privada":
-        sql = get_nivel_actual_estudios_by_tipo_escuela_query(2, initial_only)
-    elif disaggregation == "nivel_actual_estudios_por_escuela_publica":
-        sql = get_nivel_actual_estudios_by_tipo_escuela_query(1, initial_only)
-    elif disaggregation == "sexo":
-        sql = get_sexo_query(initial_only)
-    elif disaggregation == "municipio":
-        sql = get_municipio_query(initial_only)
-    elif disaggregation == "municipio_por_hombres":
-        sql = get_municipio_by_sex_query(0, initial_only)
-    elif disaggregation == "municipio_por_mujeres":
-        sql = get_municipio_by_sex_query(1, initial_only)
-    elif disaggregation == "edad":
-        sql = get_edad_query(initial_only)
-    elif disaggregation == "totales":
-        sql = get_totales_query(initial_only)
-    elif disaggregation == "ingreso":
-        sql = get_ingreso_query(initial_only)
-    else:
-        print(disaggregation)
-        sql = get_disaggregation_query(initial_only)
-        params["dimension"] = disaggregation
-
     df_long = pd.read_sql_query(sql, conn, params=params)
 
     if df_long.empty:
