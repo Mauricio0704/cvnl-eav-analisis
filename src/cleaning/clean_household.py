@@ -21,7 +21,7 @@ def clean_household_responses(df: pd.DataFrame) -> pd.DataFrame:
     df["cp4_1"] = df["cp4_1"].astype("Int16")
     df["cp4_2"] = df["cp4_2"].astype("Int16")
 
-    mask = df["cp4_2"].notna() & (df["cp4_2"] > 0)
+    mask = df["cp4_2"].notna() & (df["cp4_2"] >= 0)
     df.loc[mask, "cp4_1"] = 0
 
     for col in HOUSEHOLD_NUMERIC_QUESTIONS:

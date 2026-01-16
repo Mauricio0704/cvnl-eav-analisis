@@ -49,6 +49,7 @@ def build_question_report(
         "servicio_salud_donde_se_atendio",
         "tipo_servicio_salud_donde_se_atendio",
         "tipo_escuela",
+        "nivel_actual_estudios",
         "nivel_actual_estudios_por_escuela_privada",
         "nivel_actual_estudios_por_escuela_publica",
         "sexo",

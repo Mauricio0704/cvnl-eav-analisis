@@ -21,12 +21,12 @@ def add_weighted_average_row(df: pd.DataFrame) -> pd.DataFrame:
     valid_df = df[~df[df.columns[0]].isin(["Total", "Promedio"])]
     weighted_averages = {}
     for col in df.columns[2:]:
-        weights = valid_df[col]
-        values = valid_df["Respuesta"]
+        weights = pd.to_numeric(valid_df[col], errors="coerce")
+        values = pd.to_numeric(valid_df["Respuesta"], errors="coerce")
 
         mask = ~values.isin([7777, 8888, 9999]) & ~weights.isin([7777, 8888, 9999])
-        filtered_values = pd.to_numeric(values[mask], errors="coerce")
-        filtered_weights = pd.to_numeric(weights[mask], errors="coerce")
+        filtered_values = values[mask]
+        filtered_weights = weights[mask]
 
         if filtered_weights.sum() == 0:
             weighted_avg = 0

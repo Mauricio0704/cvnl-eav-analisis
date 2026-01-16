@@ -27,6 +27,7 @@ from src.io.export_to_csv import (
     export_household_answers_to_csv,
     export_individual_answers_to_csv,
     export_respondent_attributes_to_csv,
+    export_household_wide_to_xlsx,
 )
 from src.io.export_disaggregations import dissagregations_to_json
 from src.config.paths import DATA_DIR
@@ -46,6 +47,7 @@ def main():
     household_df = get_household_data(survey_df)
     household_members_lf = household_members_to_long_format(household_df, 12)
     household_clean = clean_household_responses(household_members_lf)
+    export_household_wide_to_xlsx(household_clean)
     household_questions_lf = household_questions_to_long_format(household_clean)
     responses_clean = clean_responses(household_clean, DEMOGRAPHIC_CODES)
     export_responses_to_csv(responses_clean)

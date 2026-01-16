@@ -67,3 +67,11 @@ def export_respondent_attributes_to_csv(df: pd.DataFrame) -> None:
     attributes = df.reset_index(drop=True)
 
     attributes.to_csv(PROCESSED_DATA_DIR / "respondent_attributes.csv", index=False)
+
+
+def export_household_wide_to_xlsx(df: pd.DataFrame) -> None:
+    df = df.copy()
+
+    household_wide = df.reset_index(drop=True)
+
+    household_wide.to_excel(PROCESSED_DATA_DIR / "household_wide.xlsx", index=False)
