@@ -58,6 +58,7 @@ def build_question_report(
         "municipio_por_mujeres",
         "edad",
         "totales",
+        "tipo_consulta",
     ]
 
     for disaggregation in question_specific_disaggregations:

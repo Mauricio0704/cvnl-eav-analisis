@@ -682,6 +682,38 @@ def get_ingreso_query(initial_only: bool = True) -> str:
     return query
 
 
+def get_tipo_consulta_query(initial_only: bool = True) -> str:
+    weight = _get_weight_clause(initial_only)
+
+    query = f"""
+        SELECT
+            COALESCE(o.option_id, a.value) AS id_respuesta,
+            COALESCE(o.option_label, CAST(a.value AS TEXT)) AS Respuesta,
+            oa.option_label AS grupo,
+            SUM({weight}) AS valor
+        FROM answers a
+        LEFT JOIN options o 
+        ON a.question_id = o.question_id 
+        AND a.option_id = o.option_id
+
+        LEFT JOIN respondent_attributes ra 
+        ON a.respondent_id = ra.respondent_id 
+        AND ra.attribute = 'tipo_consulta'
+
+        LEFT JOIN options oa 
+        ON ra.question_id = oa.question_id 
+        AND ra.value = oa.option_id
+        
+        JOIN responses r ON a.respondent_id = r.respondent_id
+        WHERE a.question_id = :question_id
+        GROUP BY
+            COALESCE(o.option_id, a.value),
+            COALESCE(o.option_label, CAST(a.value AS TEXT)),
+            oa.option_label
+    """
+    return query
+
+
 DISAGGREGATIONS_MAP = {
     "trabajo_remunerado": get_trabajo_remunerado_query,
     "trabajo_remunerado_por_hombres": lambda initial_only: get_trabajo_remunerado_by_sex_query(0, initial_only),
@@ -704,4 +736,5 @@ DISAGGREGATIONS_MAP = {
     "edad": get_edad_query,
     "totales": get_totales_query,
     "ingreso": get_ingreso_query,
+    "tipo_consulta": get_tipo_consulta_query,
 }

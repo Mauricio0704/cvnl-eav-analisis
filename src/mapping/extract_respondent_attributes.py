@@ -3,6 +3,7 @@ import pandas as pd
 INDIVIDUAL_ATTRIBUTES_MAP = {
     "p1": "tipo_trabajo",
     "p97": "servicio_salud_donde_se_atendio",
+    "p100": "tipo_consulta",
     "p167": "ingreso",
 }
 
