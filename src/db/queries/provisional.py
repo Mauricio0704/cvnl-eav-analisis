@@ -1,10 +1,14 @@
 from src.config.survey_data import AMM_ID, ID_TO_CITY_NAME, PERIFERIA_ID, AGE_BINS, AGE_LABELS
 
 
+def _get_weight_clause(initial_only: bool) -> str:
+    return "r.factor_cvnl" if initial_only else "1"
+
+
 def get_trabajo_remunerado_query(initial_only: bool = True) -> str:
     """Get paid work data (tipo_trabajo values 1, 4, 6) for male respondents."""
 
-    weight = "r.factor_cvnl" if initial_only else "1"
+    weight = _get_weight_clause(initial_only)
 
     query = f"""
         SELECT
@@ -43,7 +47,7 @@ def get_trabajo_remunerado_query(initial_only: bool = True) -> str:
 def get_trabajo_remunerado_by_sex_query(
     sex_id: int = 0, initial_only: bool = True
 ) -> str:
-    weight = "r.factor_cvnl" if initial_only else "1"
+    weight = _get_weight_clause(initial_only)
 
     query = f"""
         SELECT
@@ -82,7 +86,7 @@ def get_trabajo_remunerado_by_sex_query(
 def get_tipo_trabajo_query(initial_only: bool = True) -> str:
     """Categorize respondents by trabajo remunerado (1,4,6) vs trabajo no remunerado (5)."""
 
-    weight = "r.factor_cvnl" if initial_only else "1"
+    weight = _get_weight_clause(initial_only)
 
     query = f"""
         SELECT
@@ -117,7 +121,7 @@ def get_tipo_trabajo_query(initial_only: bool = True) -> str:
 
 
 def get_tipo_trabajo_by_sex_query(sex_id: int = 0, initial_only: bool = True) -> str:
-    weight = "r.factor_cvnl" if initial_only else "1"
+    weight = _get_weight_clause(initial_only)
 
     query = f"""
         SELECT
@@ -150,7 +154,7 @@ def get_tipo_trabajo_by_sex_query(sex_id: int = 0, initial_only: bool = True) ->
 
 
 def get_afiliacion_servicio_salud_query(initial_only: bool = True) -> str:
-    weight = "r.factor_cvnl" if initial_only else "1"
+    weight = _get_weight_clause(initial_only)
 
     query = f"""
         SELECT
@@ -185,7 +189,7 @@ def get_afiliacion_servicio_salud_query(initial_only: bool = True) -> str:
 
 
 def get_nivel_max_estudios_query(initial_only: bool = True) -> str:
-    weight = "r.factor_cvnl" if initial_only else "1"
+    weight = _get_weight_clause(initial_only)
 
     query = f"""
         SELECT
@@ -220,7 +224,7 @@ def get_nivel_max_estudios_query(initial_only: bool = True) -> str:
 
 
 def get_servicio_salud_donde_se_atendio_query(initial_only: bool = True) -> str:
-    weight = "r.factor_cvnl" if initial_only else "1"
+    weight = _get_weight_clause(initial_only)
 
     query = f"""
         SELECT
@@ -255,7 +259,7 @@ def get_servicio_salud_donde_se_atendio_query(initial_only: bool = True) -> str:
 
 
 def get_tipo_servicio_salud_donde_se_atendio_query(initial_only: bool = True) -> str:
-    weight = "r.factor_cvnl" if initial_only else "1"
+    weight = _get_weight_clause(initial_only)
 
     query = f"""
         SELECT
@@ -289,7 +293,7 @@ def get_tipo_servicio_salud_donde_se_atendio_query(initial_only: bool = True) ->
 
 
 def get_tipo_escuela_query(initial_only: bool = True) -> str:
-    weight = "r.factor_cvnl" if initial_only else "1"
+    weight = _get_weight_clause(initial_only)
 
     query = f"""
         SELECT
@@ -324,7 +328,7 @@ def get_tipo_escuela_query(initial_only: bool = True) -> str:
 
 
 def get_nivel_actual_estudios_query(initial_only: bool = True) -> str:
-    weight = "r.factor_cvnl" if initial_only else "1"
+    weight = _get_weight_clause(initial_only)
 
     query = f"""
         SELECT
@@ -359,7 +363,7 @@ def get_nivel_actual_estudios_query(initial_only: bool = True) -> str:
 
 
 def get_nivel_actual_estudios_by_tipo_escuela_query(school_type_id: int, initial_only: bool = True) -> str:
-    weight = "r.factor_cvnl" if initial_only else "1"
+    weight = _get_weight_clause(initial_only)
 
     query = f"""
         SELECT
@@ -399,7 +403,7 @@ def get_nivel_actual_estudios_by_tipo_escuela_query(school_type_id: int, initial
 
 
 def get_sexo_query(initial_only: bool = True) -> str:
-    weight = "r.factor_cvnl" if initial_only else "1"
+    weight = _get_weight_clause(initial_only)
 
     query = f"""
         SELECT
@@ -441,7 +445,7 @@ def get_municipio_query(initial_only: bool = True) -> str:
     All municipalities in AMM_ID as their names, a group "AMM", a group "Periferia", a group "Resto NL", and a group "Nuevo León".
     It should use the city_id from the respondent_attributes table.
     """
-    weight = "r.factor_cvnl" if initial_only else "1"
+    weight = _get_weight_clause(initial_only)
 
     amm_list = ', '.join(map(str, AMM_ID))
     periferia_list = ', '.join(map(str, PERIFERIA_ID))
@@ -519,7 +523,7 @@ def get_municipio_query(initial_only: bool = True) -> str:
 
 
 def get_municipio_by_sex_query(sex_id: int = 0, initial_only: bool = True) -> str:
-    weight = "r.factor_cvnl" if initial_only else "1"
+    weight = _get_weight_clause(initial_only)
 
     amm_list = ', '.join(map(str, AMM_ID))
     periferia_list = ', '.join(map(str, PERIFERIA_ID))
@@ -594,7 +598,7 @@ def get_municipio_by_sex_query(sex_id: int = 0, initial_only: bool = True) -> st
 
 
 def get_edad_query(initial_only: bool = True) -> str:
-    weight = "r.factor_cvnl" if initial_only else "1"
+    weight = _get_weight_clause(initial_only)
 
     age_cases = ''
     start_index = 0 if not initial_only else 3
@@ -627,7 +631,7 @@ def get_edad_query(initial_only: bool = True) -> str:
 
 
 def get_totales_query(initial_only: bool = True) -> str:
-    weight = "r.factor_cvnl" if initial_only else "1"
+    weight = _get_weight_clause(initial_only)
 
     query = f"""
         SELECT
@@ -647,7 +651,7 @@ def get_totales_query(initial_only: bool = True) -> str:
 
 
 def get_ingreso_query(initial_only: bool = True) -> str:
-    weight = "r.factor_cvnl" if initial_only else "1"
+    weight = _get_weight_clause(initial_only)
 
     query = f"""
         SELECT
