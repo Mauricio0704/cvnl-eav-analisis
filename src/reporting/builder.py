@@ -60,6 +60,7 @@ def build_question_report(
         "edad",
         "totales",
         "tipo_consulta",
+        "promedio_modo_transporte_y_municipio"
     ]
 
     for disaggregation in question_specific_disaggregations:
