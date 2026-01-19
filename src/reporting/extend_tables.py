@@ -56,7 +56,7 @@ def get_relative_table(df: pd.DataFrame) -> pd.DataFrame:
         if total == 0:
             relative_df[col] = 0
         else:
-            relative_df[col] = (df[col] / total) * 100
+            relative_df[col] = (df[col] / total)
     return relative_df
 
 

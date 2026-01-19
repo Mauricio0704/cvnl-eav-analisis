@@ -102,7 +102,7 @@ def build_disaggregation_report(
             "75 o más",
         ]
         group_cols = [col for col in desired_order if col in group_cols]
-    elif disaggregation.startswith("municipio"):
+    elif "municipio" in disaggregation:
         desired_order = [
             "Apodaca",
             "Cadereyta",

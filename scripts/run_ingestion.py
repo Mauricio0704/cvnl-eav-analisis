@@ -20,6 +20,7 @@ from src.mapping.normalize_schemas import (
     normalize_disaggregations_schema,
 )
 from src.mapping.derived_variables import add_derived_variables
+from src.mapping.disaggregation_expander import expand_disaggregation_options
 from src.io.export_to_csv import (
     export_responses_to_csv,
     export_questions_to_csv,
@@ -84,9 +85,10 @@ def main():
     disaggregations_raw = load_disaggregations(year, base_dir)
     disaggregations_norm = normalize_disaggregations_schema(disaggregations_raw)
     disaggregations_clean = clean_disaggregations(disaggregations_norm)
-    disaggregations_dict = disaggregations_to_dict(disaggregations_clean)
+    disaggregations_expanded = expand_disaggregation_options(disaggregations_clean)
+    disaggregations_dict = disaggregations_to_dict(disaggregations_expanded)
 
-    # dissagregations_to_json(disaggregations_dict)
+    dissagregations_to_json(disaggregations_dict)
 
     print("Ingestion completed.")
 

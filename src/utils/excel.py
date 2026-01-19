@@ -1,6 +1,5 @@
 import pandas as pd
 from pathlib import Path
-from src.reporting.formating import add_percentage
 
 
 class ExcelContext:
@@ -46,10 +45,7 @@ def write_table_to_excel(
     ctx: ExcelContext,
     df: pd.DataFrame,
     is_relative: bool = False,
-) -> None:
-    if is_relative:
-        df = add_percentage(df)
-        
+) -> None:  
     df.to_excel(
         ctx.writer,
         sheet_name=ctx.sheet_name,
