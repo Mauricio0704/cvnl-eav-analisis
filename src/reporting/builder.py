@@ -60,7 +60,7 @@ def build_question_report(
         "edad",
         "totales",
         "tipo_consulta",
-        "promedio_modo_transporte_y_municipio"
+        "promedio_modo_transporte_y_municipio",
     ]
 
     for disaggregation in question_specific_disaggregations:
@@ -105,6 +105,8 @@ def build_section_report(conn, section) -> None:
         questions_df.iterrows(),
         total=len(questions_df),
         desc=f"Building {section} section report",
+        unit="question",
+        colour="green",
     ):
         build_question_report(
             conn, question["id"], question["q_text"], question["id"], section
