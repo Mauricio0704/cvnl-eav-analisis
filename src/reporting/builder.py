@@ -1,5 +1,6 @@
 import pandas as pd
 import json
+from tqdm import tqdm
 
 from src.config.paths import OUTPUT_DIR, PROCESSED_DATA_DIR
 from src.config.survey_data import NUMERICAL_VALUE_QUESTIONS
@@ -99,7 +100,11 @@ def build_question_report(
 def build_section_report(conn, section) -> None:
     questions_df = get_questions_by_section(conn, section)
 
-    for _, question in questions_df.iterrows():
+    for _, question in tqdm(
+        questions_df.iterrows(),
+        total=len(questions_df),
+        desc=f"Building {section} section report",
+    ):
         build_question_report(
             conn, question["id"], question["q_text"], question["id"], section
         )
