@@ -61,11 +61,25 @@ def build_question_report(
         "totales",
         "tipo_consulta",
         "promedio_modo_transporte_y_municipio",
+        "ingreso_por_apodaca",
+        "ingreso_por_cadereyta",
+        "ingreso_por_garcia",
+        "ingreso_por_san_nicolas",
+        "ingreso_por_santa_catarina",
+        "ingreso_por_santiago",
+        "ingreso_por_monterrey",
+        "ingreso_por_san_pedro",
+        "ingreso_por_guadalupe",
+        "ingreso_por_juarez",
+        "ingreso_por_region_amm",
+        "ingreso_por_region_periferia",
+        "ingreso_por_region_resto_nl",
+        "ingreso_por_region_nuevo_leon",
+        "particion_modal_agregada_por_municipio",
     ]
 
     for disaggregation in question_specific_disaggregations:
         if disaggregation["type"] in handled_disaggregations:
-
             df = add_total_row(
                 build_disaggregation_report(
                     conn,
@@ -75,7 +89,7 @@ def build_question_report(
                 )
             )
 
-            if not disaggregation["type"].startswith("municipio"):
+            if "municipio" in disaggregation["type"]:
                 df = add_total_column(df)
 
             if question_id in NUMERICAL_VALUE_QUESTIONS:
