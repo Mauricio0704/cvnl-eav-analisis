@@ -104,6 +104,7 @@ NUMERICAL_VALUE_QUESTIONS = [
     "p8_2",
     "p9_1",
     "p9_2",
+    "p14",
     "p18",
     "p20_1",
     "p20_2",

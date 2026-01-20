@@ -70,11 +70,15 @@ def build_question_report(
         "ingreso_por_monterrey",
         "ingreso_por_san_pedro",
         "ingreso_por_guadalupe",
+        "ingreso_por_juarez",
+        "ingreso_por_region_amm",
+        "ingreso_por_region_periferia",
+        "ingreso_por_region_resto_nl",
+        "ingreso_por_region_nuevo_leon",
     ]
 
     for disaggregation in question_specific_disaggregations:
         if disaggregation["type"] in handled_disaggregations:
-
             df = add_total_row(
                 build_disaggregation_report(
                     conn,

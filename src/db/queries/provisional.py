@@ -880,7 +880,59 @@ def get_ingreso_by_municipio_query(city_id: int, initial_only: bool = True) -> s
     return query
 
 
+def get_ingreso_by_region(region_id: int, initial_only: bool = True) -> str:
+    """
+    1: AMM
+    2: Periferia
+    3: Resto NL
+    4: Nuevo León
+    """
+    
+    weight = _get_weight_clause(initial_only)
 
+    if region_id == 1:
+        region_condition = f"value IN ({', '.join(map(str, AMM_ID))})"
+    elif region_id == 2:
+        region_condition = f"value IN ({', '.join(map(str, PERIFERIA_ID))})"
+    elif region_id == 3:
+        region_condition = f"value NOT IN ({', '.join(map(str, AMM_ID + PERIFERIA_ID))})"
+    elif region_id == 4:
+        region_condition = "value IS NOT NULL"
+    else:
+        raise ValueError("Invalid region_id. Must be 1, 2, 3, or 4.")
+
+    query = f"""
+        SELECT
+            COALESCE(o.option_id, a.value) AS id_respuesta,
+            COALESCE(o.option_label, CAST(a.value AS TEXT)) AS Respuesta,
+            oa.option_label AS grupo,
+            SUM({weight}) AS valor
+        FROM answers a
+        LEFT JOIN options o 
+        ON a.question_id = o.question_id 
+        AND a.option_id = o.option_id
+
+        LEFT JOIN respondent_attributes ra 
+        ON a.respondent_id = ra.respondent_id 
+        AND ra.attribute = 'ingreso'
+
+        LEFT JOIN respondent_attributes rm 
+        ON a.respondent_id = rm.respondent_id 
+        AND rm.attribute = 'municipio'
+
+        LEFT JOIN options oa 
+        ON ra.question_id = oa.question_id 
+        AND ra.value = oa.option_id
+        
+        JOIN responses r ON a.respondent_id = r.respondent_id
+        WHERE a.question_id = :question_id
+          AND rm.{region_condition}
+        GROUP BY
+            COALESCE(o.option_id, a.value),
+            COALESCE(o.option_label, CAST(a.value AS TEXT)),
+            oa.option_label
+    """
+    return query
 
 
 DISAGGREGATIONS_MAP = {
@@ -969,5 +1021,17 @@ DISAGGREGATIONS_MAP = {
     ),
     "ingreso_por_escobedo": lambda initial_only: get_ingreso_by_municipio_query(
         21, initial_only
+    ),
+    "ingreso_por_region_amm": lambda initial_only: get_ingreso_by_region(
+        1, initial_only
+    ),
+    "ingreso_por_region_periferia": lambda initial_only: get_ingreso_by_region(
+        2, initial_only
+    ),
+    "ingreso_por_region_resto_nl": lambda initial_only: get_ingreso_by_region(
+        3, initial_only
+    ),
+    "ingreso_por_region_nuevo_leon": lambda initial_only: get_ingreso_by_region(
+        4, initial_only
     ),
 }
