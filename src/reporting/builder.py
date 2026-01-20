@@ -61,6 +61,15 @@ def build_question_report(
         "totales",
         "tipo_consulta",
         "promedio_modo_transporte_y_municipio",
+        "ingreso_por_apodaca",
+        "ingreso_por_cadereyta",
+        "ingreso_por_garcia",
+        "ingreso_por_san_nicolas",
+        "ingreso_por_santa_catarina",
+        "ingreso_por_santiago",
+        "ingreso_por_monterrey",
+        "ingreso_por_san_pedro",
+        "ingreso_por_guadalupe",
     ]
 
     for disaggregation in question_specific_disaggregations:

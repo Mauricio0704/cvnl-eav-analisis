@@ -843,6 +843,46 @@ def get_municipio_by_promedio_modo_transporte_query(initial_only: bool = True) -
     return query
 
 
+def get_ingreso_by_municipio_query(city_id: int, initial_only: bool = True) -> str:
+    weight = _get_weight_clause(initial_only)
+
+    query = f"""
+        SELECT
+            COALESCE(o.option_id, a.value) AS id_respuesta,
+            COALESCE(o.option_label, CAST(a.value AS TEXT)) AS Respuesta,
+            oa.option_label AS grupo,
+            SUM({weight}) AS valor
+        FROM answers a
+        LEFT JOIN options o 
+        ON a.question_id = o.question_id 
+        AND a.option_id = o.option_id
+
+        LEFT JOIN respondent_attributes ra 
+        ON a.respondent_id = ra.respondent_id 
+        AND ra.attribute = 'ingreso'
+
+        LEFT JOIN respondent_attributes rm 
+        ON a.respondent_id = rm.respondent_id 
+        AND rm.attribute = 'municipio'
+
+        LEFT JOIN options oa 
+        ON ra.question_id = oa.question_id 
+        AND ra.value = oa.option_id
+        
+        JOIN responses r ON a.respondent_id = r.respondent_id
+        WHERE a.question_id = :question_id
+          AND rm.value = {city_id}
+        GROUP BY
+            COALESCE(o.option_id, a.value),
+            COALESCE(o.option_label, CAST(a.value AS TEXT)),
+            oa.option_label
+    """
+    return query
+
+
+
+
+
 DISAGGREGATIONS_MAP = {
     "trabajo_remunerado": lambda initial_only: get_trabajo_remunerado_query(
         initial_only
@@ -896,5 +936,38 @@ DISAGGREGATIONS_MAP = {
     "tipo_consulta": lambda initial_only: get_tipo_consulta_query(initial_only),
     "promedio_modo_transporte_y_municipio": lambda initial_only: get_municipio_by_promedio_modo_transporte_query(
         initial_only
+    ),
+    "ingreso_por_apodaca": lambda initial_only: get_ingreso_by_municipio_query(
+        6, initial_only
+    ),
+    "ingreso_por_guadalupe": lambda initial_only: get_ingreso_by_municipio_query(
+        26, initial_only
+    ),
+    "ingreso_por_juarez": lambda initial_only: get_ingreso_by_municipio_query(
+        31, initial_only
+    ),
+    "ingreso_por_monterrey": lambda initial_only: get_ingreso_by_municipio_query(
+        39, initial_only
+    ),
+    "ingreso_por_san_nicolas": lambda initial_only: get_ingreso_by_municipio_query(
+        46, initial_only
+    ),
+    "ingreso_por_san_pedro": lambda initial_only: get_ingreso_by_municipio_query(
+        19, initial_only
+    ),
+    "ingreso_por_santiago": lambda initial_only: get_ingreso_by_municipio_query(
+        49, initial_only
+    ),
+    "ingreso_por_cadereyta": lambda initial_only: get_ingreso_by_municipio_query(
+        9, initial_only
+    ),
+    "ingreso_por_santa_catarina": lambda initial_only: get_ingreso_by_municipio_query(
+        48, initial_only
+    ),
+    "ingreso_por_garcia": lambda initial_only: get_ingreso_by_municipio_query(
+        18, initial_only
+    ),
+    "ingreso_por_escobedo": lambda initial_only: get_ingreso_by_municipio_query(
+        21, initial_only
     ),
 }
