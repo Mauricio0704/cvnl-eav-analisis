@@ -887,7 +887,7 @@ def get_ingreso_by_region(region_id: int, initial_only: bool = True) -> str:
     3: Resto NL
     4: Nuevo León
     """
-    
+
     weight = _get_weight_clause(initial_only)
 
     if region_id == 1:
@@ -931,6 +931,112 @@ def get_ingreso_by_region(region_id: int, initial_only: bool = True) -> str:
             COALESCE(o.option_id, a.value),
             COALESCE(o.option_label, CAST(a.value AS TEXT)),
             oa.option_label
+    """
+    return query
+
+
+def get_particion_modal_agregada_por_region_query(initial_only: bool = True) -> str:
+    medios_motorizados_no_colectivos = [3, 4, 5, 9]
+    medios_no_motorizados = [1, 6, 7]
+    transporte_publico_colectivo = [2, 8, 10]
+    transporte_privado_colectivo = [11, 12, 13]
+    otros = [14, 15]
+    
+    weight = _get_weight_clause(initial_only)
+    amm_list = ", ".join(map(str, AMM_ID))
+    periferia_list = ", ".join(map(str, PERIFERIA_ID))
+    amm_plus_perif = ", ".join(map(str, AMM_ID + PERIFERIA_ID))
+    
+    city_case = ""
+    for city_id in AMM_ID:
+        city_name = ID_TO_CITY_NAME[city_id]
+        city_case += f"WHEN rm.value = {city_id} THEN '{city_name}'\n            "
+    
+    mode_case = f"""CASE
+                WHEN ra.value IN ({', '.join(map(str, medios_motorizados_no_colectivos))}) THEN 'Medios Motorizados No Colectivos'
+                WHEN ra.value IN ({', '.join(map(str, medios_no_motorizados))}) THEN 'Medios No Motorizados'
+                WHEN ra.value IN ({', '.join(map(str, transporte_publico_colectivo))}) THEN 'Transporte Publico Colectivo'
+                WHEN ra.value IN ({', '.join(map(str, transporte_privado_colectivo))}) THEN 'Transporte Privado Colectivo'
+                WHEN ra.value IN ({', '.join(map(str, otros))}) THEN 'Otros'
+                WHEN ra.value IN (8888) THEN 'No Sabe'
+                WHEN ra.value IN (9999) THEN 'No Contesta'
+            END"""
+    
+    query = f"""
+        -- City-level rows (only for AMM municipalities)
+        SELECT
+            {mode_case} AS id_respuesta,
+            {mode_case} AS Respuesta,
+            CASE
+            {city_case}
+            END AS grupo,
+            SUM({weight}) AS valor
+        FROM answers a
+        LEFT JOIN respondent_attributes ra 
+        ON a.respondent_id = ra.respondent_id 
+        AND ra.attribute = 'modo_transporte'
+        LEFT JOIN respondent_attributes rm 
+        ON a.respondent_id = rm.respondent_id 
+        AND rm.attribute = 'municipio'
+        JOIN responses r ON a.respondent_id = r.respondent_id
+        WHERE a.question_id = :question_id
+          AND ra.value IS NOT NULL
+          AND rm.value IN ({amm_list})
+        GROUP BY
+            id_respuesta,
+            Respuesta,
+            grupo
+
+        UNION ALL
+
+        -- Regional rows: AMM / Periferia / Resto NL
+        SELECT
+            {mode_case} AS id_respuesta,
+            {mode_case} AS Respuesta,
+            CASE
+                WHEN rm.value IN ({amm_list}) THEN 'AMM'
+                WHEN rm.value IN ({periferia_list}) THEN 'Periferia'
+                WHEN rm.value NOT IN ({amm_plus_perif}) THEN 'Resto NL'
+            END AS grupo,
+            SUM({weight}) AS valor
+        FROM answers a
+        LEFT JOIN respondent_attributes ra 
+        ON a.respondent_id = ra.respondent_id 
+        AND ra.attribute = 'modo_transporte'
+        LEFT JOIN respondent_attributes rm 
+        ON a.respondent_id = rm.respondent_id 
+        AND rm.attribute = 'municipio'
+        JOIN responses r ON a.respondent_id = r.respondent_id
+        WHERE a.question_id = :question_id
+          AND ra.value IS NOT NULL
+          AND rm.value IS NOT NULL
+        GROUP BY
+            id_respuesta,
+            Respuesta,
+            grupo
+
+        UNION ALL
+
+        -- Entire state row: Nuevo León
+        SELECT
+            {mode_case} AS id_respuesta,
+            {mode_case} AS Respuesta,
+            'Nuevo León' AS grupo,
+            SUM({weight}) AS valor
+        FROM answers a
+        LEFT JOIN respondent_attributes ra 
+        ON a.respondent_id = ra.respondent_id 
+        AND ra.attribute = 'modo_transporte'
+        LEFT JOIN respondent_attributes rm 
+        ON a.respondent_id = rm.respondent_id 
+        AND rm.attribute = 'municipio'
+        JOIN responses r ON a.respondent_id = r.respondent_id
+        WHERE a.question_id = :question_id
+          AND ra.value IS NOT NULL
+          AND rm.value IS NOT NULL
+        GROUP BY
+            id_respuesta,
+            Respuesta
     """
     return query
 
@@ -1033,5 +1139,8 @@ DISAGGREGATIONS_MAP = {
     ),
     "ingreso_por_region_nuevo_leon": lambda initial_only: get_ingreso_by_region(
         4, initial_only
+    ),
+    "particion_modal_agregada_por_municipio": lambda initial_only: get_particion_modal_agregada_por_region_query(
+        initial_only
     ),
 }

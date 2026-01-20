@@ -75,6 +75,7 @@ def build_question_report(
         "ingreso_por_region_periferia",
         "ingreso_por_region_resto_nl",
         "ingreso_por_region_nuevo_leon",
+        "particion_modal_agregada_por_municipio",
     ]
 
     for disaggregation in question_specific_disaggregations:
@@ -88,7 +89,7 @@ def build_question_report(
                 )
             )
 
-            if not disaggregation["type"].startswith("municipio"):
+            if "municipio" in disaggregation["type"]:
                 df = add_total_column(df)
 
             if question_id in NUMERICAL_VALUE_QUESTIONS:
