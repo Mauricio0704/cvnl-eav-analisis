@@ -314,7 +314,59 @@ def al_menos_una_accion_pc(df):
     )
 
     return new_df
-    
+
+# Vivienda
+
+def p56_ultimos_5_anios(df):
+    """
+    Filter p56 to only include respondents who have moved in the last 5 years (p55 <= 2).
+    """
+    new_df = df.copy()
+
+    moved_recently = new_df["p55"].isin([1, 2])
+
+    new_df["P56_ULTIMOS_5_ANIOS"] = np.where(
+        moved_recently,
+        new_df["p56"],
+        np.nan
+    )
+
+    return new_df
+
+
+def p57_ultimos_5_anios(df):
+    """
+    Filter p57 to only include respondents who have moved in the last 5 years (p55 <= 2).
+    """
+    new_df = df.copy()
+
+    moved_recently = new_df["p55"].isin([1, 2])
+
+    new_df["P57_ULTIMOS_5_ANIOS"] = np.where(
+        moved_recently,
+        new_df["p57"],
+        np.nan
+    )
+
+    return new_df
+
+
+def p58_ultimos_5_anios(df):
+    """
+    Filter p58 to only include respondents who have moved in the last 5 years (p55 <= 2).
+    """
+    new_df = df.copy()
+
+    moved_recently = new_df["p55"].isin([1, 2])
+
+    new_df["P58_ULTIMOS_5_ANIOS"] = np.where(
+        moved_recently,
+        new_df["p58"],
+        np.nan
+    )
+
+    return new_df
+
 
 def add_derived_variables(df):
     df = tiempo_trabajo_minutes(df)
@@ -340,4 +392,8 @@ def add_derived_variables(df):
     df = al_menos_una_discriminacion(df)
     df = num_acciones_pc(df)
     df = al_menos_una_accion_pc(df)
+    df = p56_ultimos_5_anios(df)
+    df = p57_ultimos_5_anios(df)
+    df = p58_ultimos_5_anios(df)
+    
     return df
