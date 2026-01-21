@@ -69,6 +69,7 @@ def build_question_report(
         "ingreso_por_santiago",
         "ingreso_por_monterrey",
         "ingreso_por_san_pedro",
+        "ingreso_por_escobedo",
         "ingreso_por_guadalupe",
         "ingreso_por_juarez",
         "ingreso_por_region_amm",
@@ -89,7 +90,7 @@ def build_question_report(
                 )
             )
 
-            if "municipio" in disaggregation["type"]:
+            if "municipio" not in disaggregation["type"]:
                 df = add_total_column(df)
 
             if question_id in NUMERICAL_VALUE_QUESTIONS:

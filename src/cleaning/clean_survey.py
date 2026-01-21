@@ -1,12 +1,11 @@
 import pandas as pd
 
 from src.utils.dataframe import generate_id
-from src.config.survey_data import QUESTION_SECTIONS
 from src.config.survey_data import AGE_BINS, AGE_LABELS
 
 
 def generate_questions_ids(df: pd.DataFrame) -> pd.DataFrame:
-    question_statements = df[(df["type"] == "CP") | (df["type"] == "P")].copy()
+    question_statements = df[df["type"].notna()].copy()
 
     question_statements_with_id = generate_id(
         question_statements, id_name="id", id_cols=["type", "q_num"], sep=""
@@ -33,38 +32,18 @@ def remove_empty_rows(df: pd.DataFrame) -> pd.DataFrame:
 
     keep = ~empty | first_empty_in_block
 
-    questions = df.loc[keep].reset_index(drop=True)[3:]
+    questions = df.loc[keep].reset_index(drop=True)[1:]
 
     return questions
-
-
-def add_question_section(df: pd.DataFrame) -> pd.DataFrame:
-    df = df.copy()
-    df["section"] = pd.NA
-
-    for section, bounds in QUESTION_SECTIONS.items():
-        start_question = df.loc[
-            df["id"].str.match(rf"^{bounds['start']}($|_)", na=False)
-        ]
-        end_question = df.loc[df["id"].str.match(rf"^{bounds['end']}($|_)", na=False)]
-
-        start_idx = start_question.index[0]
-        end_idx = end_question.index[-1]
-
-        df.loc[start_idx:end_idx, "section"] = section
-
-    return df
 
 
 def clean_questions(df: pd.DataFrame) -> pd.DataFrame:
     df = remove_empty_rows(df)
     df = generate_questions_ids(df)
 
-    question_statements_with_id = df[(df["type"] == "CP") | (df["type"] == "P")].copy()
+    question_statements_with_id = df[df["type"].notna()].copy()
 
-    questions_raw = question_statements_with_id[["id", "q_text"]].copy()
-
-    questions_raw = add_question_section(questions_raw)
+    questions_raw = question_statements_with_id[["id", "q_text", "section"]].copy()
 
     return questions_raw
 
@@ -106,7 +85,7 @@ def clean_options(df: pd.DataFrame) -> pd.DataFrame:
     options = options.drop_duplicates(
         subset=["question_id", "option_id"], keep="first"
     ).reset_index(drop=True)
-    
+
     options["option_id"] = options["option_id"].astype("Int64")
 
     return options
@@ -115,17 +94,14 @@ def clean_options(df: pd.DataFrame) -> pd.DataFrame:
 def clean_responses(
     df: pd.DataFrame, demographic_codes: dict[str, str]
 ) -> pd.DataFrame:
-    responses = (
-        df[
-            [
-                "respondent_id",
-                "is_initial_respondent",
-                "nombre",
-                *demographic_codes.keys(),
-            ]
+    responses = df[
+        [
+            "respondent_id",
+            "is_initial_respondent",
+            "nombre",
+            *demographic_codes.keys(),
         ]
-        .rename(columns=demographic_codes)
-    )
+    ].rename(columns=demographic_codes)
 
     responses["grupo_edad"] = pd.cut(
         responses["edad_anos"],
