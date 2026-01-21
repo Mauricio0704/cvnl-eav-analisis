@@ -11,7 +11,7 @@ def tiempo_trabajo_minutes(df):
     valid_p3_1 = new_df["p3_1"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
     valid_p3_2 = new_df["p3_2"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
 
-    new_df["TIEMPO_TRABAJO"] = (valid_p3_1 * 60) + valid_p3_2
+    new_df["tiempo_trabajo"] = (valid_p3_1 * 60) + valid_p3_2
     
     return new_df
 
@@ -22,7 +22,7 @@ def prestaciones(df):
 
     prestaciones_cols = [f"p5_{i}" for i in range(1, 9)]
 
-    new_df["PRESTACIONES"] = new_df[prestaciones_cols].apply(lambda row: 1 if all(row == 1) else (0 if any(row == 0) else pd.NA), axis=1)
+    new_df["prestaciones"] = new_df[prestaciones_cols].apply(lambda row: 1 if all(row == 1) else (0 if any(row == 0) else pd.NA), axis=1)
 
     return new_df
 
@@ -34,7 +34,7 @@ def trabajo_formal(df):
 
     formal_cols = ["p5_1", "p5_2", "p5_5"]
 
-    new_df["TRABAJO_FORMAL"] = new_df[formal_cols].apply(lambda row: 1 if all(row == 1) else (0 if any(row == 0) else pd.NA), axis=1)
+    new_df["trabajo_formal"] = new_df[formal_cols].apply(lambda row: 1 if all(row == 1) else (0 if any(row == 0) else pd.NA), axis=1)
 
     return new_df
 
@@ -46,7 +46,7 @@ def quehaceres_hogar(df):
     valid_p7_1 = new_df["p7_1"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
     valid_p7_2 = new_df["p7_2"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
 
-    new_df["QUEHACERES_HOGAR"] = (valid_p7_1 * 60) + valid_p7_2
+    new_df["quehaceres_hogar"] = (valid_p7_1 * 60) + valid_p7_2
 
     return new_df
 
@@ -59,7 +59,7 @@ def cuidado_personas(df):
     valid_p8_1 = new_df["p8_1"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
     valid_p8_2 = new_df["p8_2"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
 
-    new_df["CUIDADOS_PERSONAS"] = (valid_p8_1 * 60) + valid_p8_2
+    new_df["cuidados_personas"] = (valid_p8_1 * 60) + valid_p8_2
 
     return new_df
 
@@ -70,7 +70,7 @@ def total_trabajo_minutes(df):
 
     df_filtered = new_df[new_df["p1"].isin([1, 4, 6])]
 
-    new_df.loc[df_filtered.index, "TOTAL_MIN_TRABAJO_REM_Y_NOREM"] = df_filtered[["TIEMPO_TRABAJO", "QUEHACERES_HOGAR", "CUIDADOS_PERSONAS"]].sum(axis=1, min_count=1)
+    new_df.loc[df_filtered.index, "total_min_trabajo_rem_y_norem"] = df_filtered[["tiempo_trabajo", "quehaceres_hogar", "cuidados_personas"]].sum(axis=1, min_count=1)
 
     return new_df
 
@@ -82,7 +82,7 @@ def ocio(df):
     valid_p9_1 = new_df["p9_1"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
     valid_p9_2 = new_df["p9_2"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
 
-    new_df["OCIO"] = (valid_p9_1 * 60) + valid_p9_2
+    new_df["ocio"] = (valid_p9_1 * 60) + valid_p9_2
 
     return new_df
 
@@ -96,7 +96,7 @@ def tiempo_espera_consulta(df):
     valid_p103_1 = new_df["p103_1"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
     valid_p103_2 = new_df["p103_2"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
 
-    new_df["TIEMPO_ESPERA_CONSULTA"] = (valid_p103_1 * 60) + valid_p103_2
+    new_df["tiempo_espera_consulta"] = (valid_p103_1 * 60) + valid_p103_2
 
     return new_df
 
@@ -107,7 +107,7 @@ def problema_mental(df):
 
     mental_cols = ["p107_1", "p107_2", "p107_3"]
 
-    new_df["AL_MENOS_UN_PROBLEMA_MENTAL"] = (
+    new_df["al_menos_un_problema_mental"] = (
         new_df[mental_cols]
         .isin([1, 2, 3])
         .any(axis=1)
@@ -133,7 +133,7 @@ def rangos_edad(df):
         "75 o más",
     ]
 
-    new_df["RANGOS_EDAD"] = pd.cut(
+    new_df["rangos_edad"] = pd.cut(
         new_df["cp4_1"].replace(9999, pd.NA),
         bins=bins,
         labels=labels,
@@ -153,7 +153,7 @@ def tiempo_espera(df):
 
     valid_p21_1 = new_df["p21_1"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
     valid_p21_2 = new_df["p21_2"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
-    new_df["TIEMPO_ESPERA"] = (valid_p21_1 * 60) + valid_p21_2
+    new_df["tiempo_espera"] = (valid_p21_1 * 60) + valid_p21_2
 
     return new_df
 
@@ -164,7 +164,7 @@ def costo_total_viaje(df):
 
     valid_p24 = new_df["p24"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
     valid_p25 = new_df["p25"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
-    new_df["COSTO_TOTAL_VIAJE_REDONDO"] = valid_p24 + valid_p25
+    new_df["costo_total_viaje_redondo"] = valid_p24 + valid_p25
 
     return new_df
 
@@ -175,7 +175,7 @@ def tiempo_ida(df):
 
     valid_p27_1 = new_df["p27_1"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
     valid_p27_2 = new_df["p27_2"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
-    new_df["TIEMPO_IDA"] = (valid_p27_1 * 60) + valid_p27_2
+    new_df["tiempo_ida"] = (valid_p27_1 * 60) + valid_p27_2
 
     return new_df
 
@@ -186,7 +186,7 @@ def tiempo_regreso(df):
 
     valid_p28_1 = new_df["p28_1"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
     valid_p28_2 = new_df["p28_2"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
-    new_df["TIEMPO_REGRESO"] = (valid_p28_1 * 60) + valid_p28_2
+    new_df["tiempo_regreso"] = (valid_p28_1 * 60) + valid_p28_2
 
     return new_df
 
@@ -195,7 +195,7 @@ def tiempo_total_traslado(df):
     # tiempo_ida + tiempo_regreso
     new_df = df.copy()
 
-    new_df["TIEMPO_TOTAL_TRASLADO"] = new_df[["TIEMPO_IDA", "TIEMPO_REGRESO"]].sum(axis=1, min_count=1)
+    new_df["tiempo_total_traslado"] = new_df[["tiempo_ida", "tiempo_regreso"]].sum(axis=1, min_count=1)
 
     return new_df
 
@@ -203,7 +203,7 @@ def tiempo_total_traslado(df):
 def usa_transporte_publico(df):
     new_df = df.copy()
 
-    new_df["USA_TRANSPORTE_PUBLICO"] = (
+    new_df["usa_transporte_publico"] = (
         new_df["p17"].isin([2, 8, 10]) |
         new_df["p29"].isin([1])
     ).astype(int)
@@ -214,7 +214,7 @@ def usa_transporte_publico(df):
 def usa_metro(df):
     new_df = df.copy()
 
-    new_df["USA_METRO"] = (
+    new_df["usa_metro"] = (
         new_df["p17"].isin([8]) |
         new_df["p30"].isin([1])
     ).astype(int)
@@ -229,9 +229,9 @@ def victima_tp(df):
 
     fue_victima = new_df[victima_cols].isin([1]).any(axis=1)
 
-    usa_tp = new_df["USA_TRANSPORTE_PUBLICO"] == 1
+    usa_tp = new_df["usa_transporte_publico"] == 1
 
-    new_df["VICTIMA_TP"] = np.where(
+    new_df["victima_tp"] = np.where(
         usa_tp,
         fue_victima.astype(int),
         np.nan
@@ -246,7 +246,7 @@ def tiempo_camina(df):
 
     valid_p20_1 = new_df["p20_1"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
     valid_p20_2 = new_df["p20_2"].apply(lambda x: x if x not in [9999, 8888, 7777] else pd.NA)
-    new_df["TIEMPO_CAMINA"] = (valid_p20_1 * 60) + valid_p20_2
+    new_df["tiempo_camina"] = (valid_p20_1 * 60) + valid_p20_2
 
     return new_df
 
@@ -259,7 +259,7 @@ def num_discriminaciones(df):
 
     discrim_cols = [f"p89_{i}" for i in range(1, 17)]
 
-    new_df["NUM_DISCRIMINACIONES"] = (
+    new_df["num_discriminaciones"] = (
         new_df[discrim_cols]
         .isin([1])
         .sum(axis=1)
@@ -274,7 +274,7 @@ def al_menos_una_discriminacion(df):
 
     discrim_cols = [f"p89_{i}" for i in range(1, 17)]
 
-    new_df["AL_MENOS_UNA_DISCRIMINACION"] = (
+    new_df["al_menos_una_discriminacion"] = (
         new_df[discrim_cols]
         .isin([1])
         .any(axis=1)
@@ -291,7 +291,7 @@ def num_acciones_pc(df):
     new_df = df.copy()
 
     accion_cols = [f"p161_{i}" for i in range(1, 10)]
-    new_df["NUM_ACCIONES_PC"] = (
+    new_df["num_acciones_pc"] = (
         new_df[accion_cols]
         .isin([1])
         .sum(axis=1)
@@ -306,7 +306,7 @@ def al_menos_una_accion_pc(df):
 
     accion_cols = [f"p161_{i}" for i in range(1, 10)]
 
-    new_df["AL_MENOS_UNA_ACCION_PC"] = (
+    new_df["al_menos_una_accion_pc"] = (
         new_df[accion_cols]
         .isin([1])
         .any(axis=1)
@@ -314,7 +314,59 @@ def al_menos_una_accion_pc(df):
     )
 
     return new_df
-    
+
+# Vivienda
+
+def p56_ultimos_5_anios(df):
+    """
+    Filter p56 to only include respondents who have moved in the last 5 years (p55 <= 2).
+    """
+    new_df = df.copy()
+
+    moved_recently = new_df["p55"].isin([1, 2])
+
+    new_df["p56_ultimos_5_anios"] = np.where(
+        moved_recently,
+        new_df["p56"],
+        np.nan
+    )
+
+    return new_df
+
+
+def p57_ultimos_5_anios(df):
+    """
+    Filter p57 to only include respondents who have moved in the last 5 years (p55 <= 2).
+    """
+    new_df = df.copy()
+
+    moved_recently = new_df["p55"].isin([1, 2])
+
+    new_df["p57_ultimos_5_anios"] = np.where(
+        moved_recently,
+        new_df["p57"],
+        np.nan
+    )
+
+    return new_df
+
+
+def p58_ultimos_5_anios(df):
+    """
+    Filter p58 to only include respondents who have moved in the last 5 years (p55 <= 2).
+    """
+    new_df = df.copy()
+
+    moved_recently = new_df["p55"].isin([1, 2])
+
+    new_df["p58_ultimos_5_anios"] = np.where(
+        moved_recently,
+        new_df["p58"],
+        np.nan
+    )
+
+    return new_df
+
 
 def add_derived_variables(df):
     df = tiempo_trabajo_minutes(df)
@@ -340,4 +392,8 @@ def add_derived_variables(df):
     df = al_menos_una_discriminacion(df)
     df = num_acciones_pc(df)
     df = al_menos_una_accion_pc(df)
+    df = p56_ultimos_5_anios(df)
+    df = p57_ultimos_5_anios(df)
+    df = p58_ultimos_5_anios(df)
+
     return df
