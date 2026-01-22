@@ -368,6 +368,57 @@ def p58_ultimos_5_anios(df):
     return new_df
 
 
+def p56_ultimos_10_anios(df):
+    """
+    Filter p56 to only include respondents who have moved in the last 10 years (p55 <= 3).
+    """
+    new_df = df.copy()
+
+    moved_recently = new_df["p55"].isin([1, 2, 3])
+
+    new_df["p56_ultimos_10_anios"] = np.where(
+        moved_recently,
+        new_df["p56"],
+        np.nan
+    )
+
+    return new_df
+
+
+def p57_ultimos_10_anios(df):
+    """
+    Filter p57 to only include respondents who have moved in the last 10 years (p55 <= 3).
+    """
+    new_df = df.copy()
+
+    moved_recently = new_df["p55"].isin([1, 2, 3])
+
+    new_df["p57_ultimos_10_anios"] = np.where(
+        moved_recently,
+        new_df["p57"],
+        np.nan
+    )
+
+    return new_df
+
+
+def p58_ultimos_10_anios(df):
+    """
+    Filter p58 to only include respondents who have moved in the last 10 years (p55 <= 3).
+    """
+    new_df = df.copy()
+
+    moved_recently = new_df["p55"].isin([1, 2, 3])
+
+    new_df["p58_ultimos_10_anios"] = np.where(
+        moved_recently,
+        new_df["p58"],
+        np.nan
+    )
+
+    return new_df
+
+
 def add_derived_variables(df):
     df = tiempo_trabajo_minutes(df)
     df = prestaciones(df)
@@ -395,5 +446,10 @@ def add_derived_variables(df):
     df = p56_ultimos_5_anios(df)
     df = p57_ultimos_5_anios(df)
     df = p58_ultimos_5_anios(df)
+    df = p56_ultimos_10_anios(df)
+    df = p57_ultimos_10_anios(df)
+    df = p58_ultimos_10_anios(df)
+
+    print(df["p58_ultimos_10_anios"].value_counts(dropna=False))
 
     return df
