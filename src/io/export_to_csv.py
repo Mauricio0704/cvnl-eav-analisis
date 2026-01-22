@@ -26,7 +26,9 @@ def export_responses_to_csv(df: pd.DataFrame) -> None:
 def export_questions_to_csv(df: pd.DataFrame) -> None:
     df = df.copy()
 
-    questions = df[["id", "q_text", "section"]].reset_index(drop=True)
+    questions = df[["q_id", "q_text", "q_section", "q_type", "q_notes"]].reset_index(
+        drop=True
+    )
 
     questions.to_csv(PROCESSED_DATA_DIR / "questions.csv", index=False)
 

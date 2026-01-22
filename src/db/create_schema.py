@@ -9,9 +9,11 @@ def create_schema(conn: sqlite3.Connection):
         PRAGMA foreign_keys = ON;
 
         CREATE TABLE IF NOT EXISTS questions (
-            id TEXT PRIMARY KEY,
+            q_id TEXT PRIMARY KEY,
             q_text TEXT,
-            section TEXT
+            q_section TEXT,
+            q_type TEXT,
+            q_notes TEXT
         );
 
         
@@ -20,7 +22,7 @@ def create_schema(conn: sqlite3.Connection):
             option_id INTEGER NOT NULL,
             option_label TEXT NOT NULL,
             PRIMARY KEY (question_id, option_id),
-            FOREIGN KEY (question_id) REFERENCES questions(id)
+            FOREIGN KEY (question_id) REFERENCES questions(q_id)
         );
 
         
@@ -45,7 +47,7 @@ def create_schema(conn: sqlite3.Connection):
             PRIMARY KEY (respondent_id, question_id),
 
             FOREIGN KEY (respondent_id) REFERENCES responses(respondent_id),
-            FOREIGN KEY (question_id) REFERENCES questions(id)
+            FOREIGN KEY (question_id) REFERENCES questions(q_id)
             
             CHECK (
                 (option_id IS NOT NULL AND value IS NULL) OR
