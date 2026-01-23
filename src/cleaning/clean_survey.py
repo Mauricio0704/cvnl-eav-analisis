@@ -1,7 +1,6 @@
 import pandas as pd
 
 from src.utils.dataframe import generate_id
-from src.config.survey_data import AGE_BINS, AGE_LABELS
 
 
 def generate_questions_ids(df: pd.DataFrame) -> pd.DataFrame:
@@ -112,24 +111,14 @@ def clean_options(df: pd.DataFrame) -> pd.DataFrame:
     return options
 
 
-def clean_responses(
-    df: pd.DataFrame, demographic_codes: dict[str, str]
-) -> pd.DataFrame:
+def clean_responses(df: pd.DataFrame) -> pd.DataFrame:
     responses = df[
         [
             "respondent_id",
             "is_initial_respondent",
             "nombre",
-            *demographic_codes.keys(),
+            "factor_cvnl",
         ]
-    ].rename(columns=demographic_codes)
-
-    responses["grupo_edad"] = pd.cut(
-        responses["edad_anos"],
-        bins=AGE_BINS,
-        labels=AGE_LABELS,
-        right=True,
-        include_lowest=True,
-    )
+    ]
 
     return responses
