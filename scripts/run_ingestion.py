@@ -64,8 +64,8 @@ def main():
         household_questions_lf["question_id"] != "city_id"
     ]
 
-    default_responses = concatenate_answers(household_questions_lf, individual_lf)
-    export_df_to_csv(default_responses, "responses.csv")
+    complete_answers = concatenate_answers(household_questions_lf, individual_lf)
+    export_df_to_csv(complete_answers, "answers.csv")
 
     # Questions and options
     questions_raw = load_questions_year(year, base_dir)
@@ -84,7 +84,7 @@ def main():
     disaggregations_expanded = expand_disaggregation_options(disaggregations_clean)
     disaggregations_dict = disaggregations_to_dict(disaggregations_expanded)
 
-    export_dict_to_json(disaggregations_dict, "disaggregations.json")
+    export_dict_to_json(disaggregations_dict, "disaggregations_v2.json")
 
     print("Ingestion completed.")
 
