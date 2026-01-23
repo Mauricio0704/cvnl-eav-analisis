@@ -54,17 +54,16 @@ def main():
     individual_with_derived_df = add_derived_variables(individual_df)
     individual_lf = individual_questions_to_long_format(individual_with_derived_df)
 
-    respondent_attributes_df = get_respondent_attributes(
-        individual_lf, household_questions_lf
-    )
+    complete_answers = concatenate_answers(household_questions_lf, individual_lf)
+
+    respondent_attributes_df = get_respondent_attributes(complete_answers)
     export_df_to_csv(respondent_attributes_df, "respondent_attributes.csv")
 
     # Remove city_id from household answers before exporting
-    household_questions_lf = household_questions_lf[
-        household_questions_lf["question_id"] != "city_id"
+    complete_answers = complete_answers[
+        complete_answers["question_id"] != "city_id"
     ]
 
-    complete_answers = concatenate_answers(household_questions_lf, individual_lf)
     export_df_to_csv(complete_answers, "answers.csv")
 
     # Questions and options

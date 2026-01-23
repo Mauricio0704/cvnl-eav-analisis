@@ -25,30 +25,6 @@ HOUSEHOLD_DATA_AND_QUESTIONS = [
     "factor_cvnl",
 ]
 
-DEMOGRAPHIC_CODES = {
-    "cp2": "sexo",
-    "city_id": "city",
-    "cp4_1": "edad_anos",
-    "factor_cvnl": "factor_cvnl",
-}
-
-MISSING_VALUES = [
-    "",
-    "NA",
-    "N/A",
-    "No aplica",
-    "No sabe",
-    "No contesta",
-    777,
-    7777,
-    77777,
-    888,
-    8888,
-    88888,
-    999,
-    9999,
-    99999,
-]
 
 HOUSEHOLD_NUMERIC_QUESTIONS = [
     "cp2",
@@ -105,18 +81,19 @@ NUMERICAL_VALUE_QUESTIONS = [
     "p28_1",
     "p28_2",
     "p40",
+    "p45",
+    "p46",
+    "p49",
+    "p50",
     "p62_1",
     "p62_2",
     "p62_3",
     "p62_4",
     "p62_5",
-    "p45",
-    "p46",
-    "p49",
-    "p50",
     "p103_1",
     "p103_2",
     "p106",
+    "p116",
     "p121_1",
     "p121_2",
     "p121_3",
@@ -143,7 +120,6 @@ NUMERICAL_VALUE_QUESTIONS = [
     "num_discriminaciones",
     "al_menos_una_discriminacion",
     "num_acciones_pc",
-    "al_menos_una_accion_pc",
 ]
 
 AMM_ID = [6, 9, 21, 18, 26, 31, 39, 46, 19, 48, 49]

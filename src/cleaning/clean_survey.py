@@ -118,6 +118,7 @@ def clean_responses(df: pd.DataFrame) -> pd.DataFrame:
             "is_initial_respondent",
             "nombre",
             "factor_cvnl",
+            "city_id",
         ]
     ]
 

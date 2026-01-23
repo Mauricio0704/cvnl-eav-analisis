@@ -30,7 +30,8 @@ def create_schema(conn: sqlite3.Connection):
             respondent_id TEXT PRIMARY KEY,
             is_initial_respondent BOOLEAN,
             nombre TEXT,
-            factor_cvnl REAL
+            factor_cvnl REAL,
+            city_id INTEGER
         );
 
 

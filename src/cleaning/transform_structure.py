@@ -5,7 +5,6 @@ from src.config.survey_data import (
     NUMERICAL_VALUE_QUESTIONS,
 )
 from src.utils.dataframe import generate_id
-from src.mapping.extract_respondent_attributes import INDIVIDUAL_ATTRIBUTES_MAP
 
 def remove_emtpy_rows(household_data: pd.DataFrame) -> pd.DataFrame:
     person_mask = household_data.loc[
