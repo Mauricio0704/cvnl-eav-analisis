@@ -1,7 +1,6 @@
 import pandas as pd
 
 from src.utils.dataframe import generate_id
-from src.config.survey_data import AGE_BINS, AGE_LABELS
 
 
 def generate_questions_ids(df: pd.DataFrame) -> pd.DataFrame:
@@ -32,35 +31,56 @@ def remove_empty_rows(df: pd.DataFrame) -> pd.DataFrame:
 
     keep = ~empty | first_empty_in_block
 
-    questions = df.loc[keep].reset_index(drop=True)[1:]
+    questions = df.loc[keep].reset_index(drop=True)
 
     return questions
 
 
 def clean_questions(df: pd.DataFrame) -> pd.DataFrame:
     df = remove_empty_rows(df)
-    df = generate_questions_ids(df)
 
-    question_statements_with_id = df[df["type"].notna()].copy()
+    q_text_raw = df["q_text"]
+    q_text_clean = q_text_raw.astype(str).str.strip()
 
-    questions_raw = question_statements_with_id[["id", "q_text", "section"]].copy()
+    question_mask = (
+        q_text_raw.notna()
+        & (q_text_clean != "")
+        & ~q_text_clean.str.match(r"^\d+", na=False)
+    )
 
-    return questions_raw
+    question_statements_with_id = df.loc[
+        question_mask, ["q_id", "q_text", "q_section", "q_type", "q_notes"]
+    ].copy()
+
+    # Normalize whitespace for exported fields
+    question_statements_with_id["q_id"] = (
+        question_statements_with_id["q_id"].astype(str).str.strip()
+    )
+    question_statements_with_id["q_text"] = (
+        question_statements_with_id["q_text"].astype(str).str.strip()
+    )
+
+    # Drop rows where after normalization q_text is the literal 'nan' or empty
+    qtxt = question_statements_with_id["q_text"].replace("nan", "").str.strip()
+    question_statements_with_id = question_statements_with_id.loc[
+        qtxt != ""
+    ].reset_index(drop=True)
+
+    return question_statements_with_id
 
 
 def clean_options(df: pd.DataFrame) -> pd.DataFrame:
     df = remove_empty_rows(df)
-    df = generate_questions_ids(df)
 
-    question_options = df[["id", "q_text"]].copy()
+    question_options = df[["q_id", "q_text"]].copy()
 
     # Propagate question id to answers
-    is_separator = question_options["id"].isna() & question_options["q_text"].isna()
+    is_separator = question_options["q_id"].isna() & question_options["q_text"].isna()
     block = is_separator.cumsum()
-    question_options["question_id"] = question_options["id"].groupby(block).ffill()
+    question_options["question_id"] = question_options["q_id"].groupby(block).ffill()
 
     # Normalize types
-    question_options["id"] = question_options["id"].astype(str).str.strip()
+    question_options["q_id"] = question_options["q_id"].astype(str).str.strip()
     question_options["q_text"] = question_options["q_text"].astype(str).str.strip()
 
     # Get answer rows
@@ -91,24 +111,15 @@ def clean_options(df: pd.DataFrame) -> pd.DataFrame:
     return options
 
 
-def clean_responses(
-    df: pd.DataFrame, demographic_codes: dict[str, str]
-) -> pd.DataFrame:
+def clean_responses(df: pd.DataFrame) -> pd.DataFrame:
     responses = df[
         [
             "respondent_id",
             "is_initial_respondent",
             "nombre",
-            *demographic_codes.keys(),
+            "factor_cvnl",
+            "city_id",
         ]
-    ].rename(columns=demographic_codes)
-
-    responses["grupo_edad"] = pd.cut(
-        responses["edad_anos"],
-        bins=AGE_BINS,
-        labels=AGE_LABELS,
-        right=True,
-        include_lowest=True,
-    )
+    ]
 
     return responses

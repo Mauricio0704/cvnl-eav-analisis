@@ -5,7 +5,6 @@ from src.config.survey_data import (
     NUMERICAL_VALUE_QUESTIONS,
 )
 from src.utils.dataframe import generate_id
-from src.mapping.extract_respondent_attributes import INDIVIDUAL_ATTRIBUTES_MAP
 
 def remove_emtpy_rows(household_data: pd.DataFrame) -> pd.DataFrame:
     person_mask = household_data.loc[
@@ -109,3 +108,9 @@ def individual_questions_to_long_format(df: pd.DataFrame) -> pd.DataFrame:
     new_df["option_id"] = new_df["answer_id"].where(~is_numeric)
 
     return new_df.drop("answer_id", axis=1)
+
+
+def concatenate_answers(
+    household_questions: pd.DataFrame, individual_questions: pd.DataFrame
+) -> pd.DataFrame:
+    return pd.concat([household_questions, individual_questions], ignore_index=True)

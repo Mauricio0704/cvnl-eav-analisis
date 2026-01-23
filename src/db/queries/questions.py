@@ -1,7 +1,7 @@
 def get_question_sections_query() -> str:
     query = """
         SELECT DISTINCT
-            section
+            q_section AS section
         FROM questions
         WHERE section IS NOT NULL
         ORDER BY section;
@@ -12,10 +12,12 @@ def get_question_sections_query() -> str:
 def get_questions_by_section_query(section: str) -> str:
     query = f"""
         SELECT
-            id,
-            q_text
+            q_id AS id,
+            q_text,
+            q_type AS type,
+            q_notes
         FROM questions
-        WHERE section = '{section}'
+        WHERE q_section = '{section}'
         ORDER BY id;
     """
     return query

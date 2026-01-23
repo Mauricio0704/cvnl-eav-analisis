@@ -1,15 +1,11 @@
 import pandas as pd
 
-INDIVIDUAL_ATTRIBUTES_MAP = {
+ATTRIBUTES_MAP = {
     "p1": "tipo_trabajo",
     "p17": "modo_transporte",
     "p97": "servicio_salud_donde_se_atendio",
     "p100": "tipo_consulta",
     "p167": "ingreso",
-}
-
-HOUSEHOLD_ATTRIBUTES_MAP = {
-    "city_id": "municipio",
     "cp2": "sexo",
     "cp4_1": "edad_anos",
     "cp6": "afiliacion_servicio_salud",
@@ -19,37 +15,19 @@ HOUSEHOLD_ATTRIBUTES_MAP = {
 }
 
 
-def get_respondent_attributes(
-    individual_df: pd.DataFrame, household_df: pd.DataFrame
-) -> pd.DataFrame:
-
-    # Individual
-    individual_attrs = individual_df[
-        individual_df["question_id"].isin(INDIVIDUAL_ATTRIBUTES_MAP)
+def get_respondent_attributes(complete_answers: pd.DataFrame) -> pd.DataFrame:
+    attrs = complete_answers[
+        complete_answers["question_id"].isin(ATTRIBUTES_MAP)
     ].copy()
 
-    individual_attrs["attribute"] = individual_attrs["question_id"].map(
-        INDIVIDUAL_ATTRIBUTES_MAP
+    attrs["attribute"] = attrs["question_id"].map(ATTRIBUTES_MAP)
+
+    attrs["value"] = attrs["value"].combine_first(attrs["option_id"])
+
+    result = (
+        attrs[["respondent_id", "question_id", "value", "attribute"]]
+        .dropna(subset=["value"])
+        .reset_index(drop=True)
     )
 
-    household_attrs = household_df[
-        household_df["question_id"].isin(HOUSEHOLD_ATTRIBUTES_MAP)
-    ].copy()
-
-    household_attrs["attribute"] = household_attrs["question_id"].map(
-        HOUSEHOLD_ATTRIBUTES_MAP
-    )
-
-    # Combine
-    attributes_df = pd.concat([individual_attrs, household_attrs], ignore_index=True)
-
-    attributes_df["value"] = attributes_df["value"].combine_first(
-        attributes_df["option_id"]
-    )
-
-    # Keep exact structure you want
-    attributes_df = attributes_df[
-        ["respondent_id", "question_id", "value", "attribute"]
-    ].dropna(subset=["value"])
-
-    return attributes_df
+    return result

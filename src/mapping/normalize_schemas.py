@@ -5,14 +5,20 @@ def normalize_questions_schema(df: pd.DataFrame) -> pd.DataFrame:
     new_df = df.copy()
 
     questions_headers_mapping = {
-        "tipo": "type",
-        "numero": "q_num",
-        "inciso": "q_sub_num",
+        "id": "q_id",
         "pregunta": "q_text",
-        "seccion": "section",
+        "seccion": "q_section",
+        "tipo": "q_type",
+        "notas": "q_notes",
     }
 
-    new_df["numero"] = new_df["numero"].astype(pd.Int64Dtype())
+    new_df.rename(questions_headers_mapping, axis=1, inplace=True)
+
+    question_statements_mask = new_df["q_id"].notna()
+
+    new_df.loc[question_statements_mask, "q_id"] = (
+        new_df.loc[question_statements_mask, "q_id"].astype(str).str.lower()
+    )
 
     return new_df.rename(questions_headers_mapping, axis=1)
 

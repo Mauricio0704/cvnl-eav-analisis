@@ -3,7 +3,6 @@ import json
 from tqdm import tqdm
 
 from src.config.paths import OUTPUT_DIR, PROCESSED_DATA_DIR
-from src.config.survey_data import NUMERICAL_VALUE_QUESTIONS
 from src.reporting.extend_tables import (
     add_total_row,
     get_relative_table,
@@ -27,82 +26,46 @@ with open(PROCESSED_DATA_DIR / "disaggregations.json", "r") as file:
 
 def build_question_report(
     conn,
-    question_id: str,
-    question_text: str,
-    sheet_name: str,
+    question: pd.Series,
     section: str,
     initial_only: bool = True,
 ) -> None:
+    question_id = question["id"]
+    sheet_name = question["id"][:31]
+    question_text = question["q_text"]
+    question_type = question["type"]
+
     titles_with_dfs = []
 
     question_specific_disaggregations = data.get(question_id, [])
 
-    handled_disaggregations = [
-        "ingreso",
-        "tipo_trabajo",
-        "tipo_trabajo_por_hombres",
-        "tipo_trabajo_por_mujeres",
-        "trabajo_remunerado",
-        "trabajo_remunerado_por_hombres",
-        "trabajo_remunerado_por_mujeres",
-        "afiliacion_servicio_salud",
-        "nivel_max_estudios",
-        "servicio_salud_donde_se_atendio",
-        "tipo_servicio_salud_donde_se_atendio",
-        "tipo_escuela",
-        "nivel_actual_estudios",
-        "nivel_actual_estudios_por_escuela_privada",
-        "nivel_actual_estudios_por_escuela_publica",
-        "sexo",
-        "municipio",
-        "municipio_por_hombres",
-        "municipio_por_mujeres",
-        "edad",
-        "totales",
-        "tipo_consulta",
-        "promedio_modo_transporte_y_municipio",
-        "ingreso_por_apodaca",
-        "ingreso_por_cadereyta",
-        "ingreso_por_garcia",
-        "ingreso_por_san_nicolas",
-        "ingreso_por_santa_catarina",
-        "ingreso_por_santiago",
-        "ingreso_por_monterrey",
-        "ingreso_por_san_pedro",
-        "ingreso_por_escobedo",
-        "ingreso_por_guadalupe",
-        "ingreso_por_juarez",
-        "ingreso_por_region_amm",
-        "ingreso_por_region_periferia",
-        "ingreso_por_region_resto_nl",
-        "ingreso_por_region_nuevo_leon",
-        "particion_modal_agregada_por_municipio",
-    ]
 
     for disaggregation in question_specific_disaggregations:
-        if disaggregation["type"] in handled_disaggregations:
-            df = add_total_row(
-                build_disaggregation_report(
-                    conn,
-                    question_id,
-                    disaggregation["type"],
-                    initial_only,
-                )
+        df = add_total_row(
+            build_disaggregation_report(
+                conn,
+                question_id,
+                disaggregation["type"],
+                initial_only,
             )
+        )
 
-            if "municipio" not in disaggregation["type"]:
-                df = add_total_column(df)
+        if "municipio" not in disaggregation["type"]:
+            df = add_total_column(df)
 
-            if question_id in NUMERICAL_VALUE_QUESTIONS:
-                df = add_weighted_average_row(df)
+        if question_type == "numerica":
+            df = add_weighted_average_row(df)
 
-            titles_with_dfs.append((f"Respuesta por {disaggregation["type"]}", df))
+        titles_with_dfs.append((f"Respuesta por {disaggregation["type"]}", df))
 
     output_path = OUTPUT_DIR / f"{section}.xlsx"
     config = get_writer_config(output_path)
 
     with pd.ExcelWriter(**config) as writer:
         ctx = ExcelContext(writer, sheet_name)
+
+        if question["q_notes"] and isinstance(question["q_notes"], str):
+            write_text_to_excel(ctx, question["q_notes"])
 
         write_text_to_excel(ctx, f"{question_id} - {question_text}")
 
@@ -124,15 +87,13 @@ def build_section_report(conn, section) -> None:
         colour="green",
     ):
         build_question_report(
-            conn, question["id"], question["q_text"], question["id"], section
+            conn, question, section
         )
 
         if question["id"].startswith("cp"):
             build_question_report(
                 conn,
-                question["id"],
-                question["q_text"],
-                question["id"],
+                question,
                 section + "_sin_factor",
                 initial_only=False,
             )
