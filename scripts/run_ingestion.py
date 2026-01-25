@@ -28,10 +28,10 @@ from src.io.exporter import (
     export_dict_to_json,
 )
 from src.config.paths import DATA_DIR
+import argparse
 
 
-def main():
-    year = 2025
+def main(year: int = 2025):
     base_dir = DATA_DIR
 
     print("Loading raw survey data...")
@@ -89,4 +89,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Run ingestion for a specific survey year")
+    parser.add_argument("--year", "-y", type=int, default=2025, help="Survey year to ingest (default: 2025)")
+    args = parser.parse_args()
+
+    main(args.year)
