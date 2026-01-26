@@ -450,6 +450,4 @@ def add_derived_variables(df):
     df = p57_ultimos_10_anios(df)
     df = p58_ultimos_10_anios(df)
 
-    print(df["p58_ultimos_10_anios"].value_counts(dropna=False))
-
     return df

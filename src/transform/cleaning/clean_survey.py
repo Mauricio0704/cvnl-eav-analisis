@@ -1,6 +1,6 @@
 import pandas as pd
 
-from src.utils.dataframe import generate_id
+from transform.dataframe import generate_id
 
 
 def generate_questions_ids(df: pd.DataFrame) -> pd.DataFrame:

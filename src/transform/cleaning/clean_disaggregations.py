@@ -1,6 +1,6 @@
 import pandas as pd
 
-from src.cleaning.clean_survey import generate_questions_ids
+from src.transform.cleaning.clean_survey import generate_questions_ids
 
 
 def remove_empty_rows(df: pd.DataFrame) -> pd.DataFrame:
