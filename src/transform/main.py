@@ -32,7 +32,7 @@ from src.transform.io.write_to_processed import (
 import argparse
 
 
-def run(year: int = 2025, create_exports: bool = True):
+def run(year: int = 2025):
     print("Processing data...")
 
     survey_df = read_xlsx_file(year, "survey_2025.xlsx")
@@ -70,14 +70,13 @@ def run(year: int = 2025, create_exports: bool = True):
     disaggregations_expanded = expand_disaggregation_options(disaggregations_clean)
     disaggregations_dict = disaggregations_to_dict(disaggregations_expanded)
 
-    if create_exports:
-        export_df_to_xlsx(year, household_clean, "household_clean.xlsx")
-        export_df_to_csv(year, responses_clean, "responses.csv")
-        export_df_to_csv(year,respondent_attributes_df, "respondent_attributes.csv")
-        export_df_to_csv(year, complete_answers, "answers.csv")
-        export_df_to_csv(year, questions_clean, "questions.csv")
-        export_df_to_csv(year, options_clean, "options.csv")
-        export_dict_to_json(year, disaggregations_dict, "disaggregations.json")
+    export_df_to_xlsx(year, household_clean, "household_clean.xlsx")
+    export_df_to_csv(year, responses_clean, "responses.csv")
+    export_df_to_csv(year,respondent_attributes_df, "respondent_attributes.csv")
+    export_df_to_csv(year, complete_answers, "answers.csv")
+    export_df_to_csv(year, questions_clean, "questions.csv")
+    export_df_to_csv(year, options_clean, "options.csv")
+    export_dict_to_json(year, disaggregations_dict, "disaggregations.json")
 
     print("Ingestion completed.")
 
