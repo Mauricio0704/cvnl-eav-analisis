@@ -419,6 +419,24 @@ def p58_ultimos_10_anios(df):
     return new_df
 
 
+def al_menos_un_problema_agua(df):
+    """
+    Para quienes respondieron 1, 2, 3, 4, o 5 en p66, p67 o p68
+    """
+    new_df = df.copy()
+
+    problema_cols = ["p66", "p67", "p68"]
+
+    new_df["al_menos_un_problema_agua"] = (
+        new_df[problema_cols]
+        .isin([1, 2, 3, 4, 5])
+        .any(axis=1)
+        .astype(int)
+    )
+
+    return new_df
+
+
 def add_derived_variables(df):
     df = tiempo_trabajo_minutes(df)
     df = prestaciones(df)
@@ -449,5 +467,6 @@ def add_derived_variables(df):
     df = p56_ultimos_10_anios(df)
     df = p57_ultimos_10_anios(df)
     df = p58_ultimos_10_anios(df)
+    df = al_menos_un_problema_agua(df)
 
     return df
