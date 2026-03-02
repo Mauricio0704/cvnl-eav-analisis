@@ -1,4 +1,4 @@
-from extract.read_fom_source import read_excel_file
+from src.extract.read_fom_source import read_excel_file
 from src.config.paths import DATA_DIR
 import argparse
 

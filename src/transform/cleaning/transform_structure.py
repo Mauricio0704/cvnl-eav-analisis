@@ -4,7 +4,7 @@ from src.config.survey_data import (
     HOUSEHOLD_DATA_AND_QUESTIONS,
     NUMERICAL_VALUE_QUESTIONS,
 )
-from transform.dataframe import generate_id
+from src.transform.dataframe import generate_id
 
 def remove_emtpy_rows(household_data: pd.DataFrame) -> pd.DataFrame:
     person_mask = household_data.loc[
