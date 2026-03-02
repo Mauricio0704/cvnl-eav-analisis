@@ -70,7 +70,7 @@ def total_trabajo_minutes(df):
 
     df_filtered = new_df[new_df["p1"].isin([1, 4, 6])]
 
-    new_df.loc[df_filtered.index, "total_min_trabajo_rem_y_norem"] = df_filtered[["tiempo_trabajo", "quehaceres_hogar", "cuidados_personas"]].sum(axis=1, min_count=1)
+    new_df.loc[df_filtered.index, "total_min_trabajo_rem_y_norem"] = df_filtered[["tiempo_trabajo", "quehaceres_hogar", "cuidados_personas"]].sum(axis=1, min_count=3)
 
     return new_df
 
